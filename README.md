@@ -80,6 +80,12 @@ Mitglieder und zentral reservierte Aliasse können mehrfach ausgewählt werden.
 Eine Registrierung mit reserviertem Alias setzt nur eine Claim-Vormerkung; die
 Bestätigung bleibt dem späteren Mitgliederverwaltungs-Schritt vorbehalten.
 
+Prompt 04 präzisiert hier die allgemeinere Aussage aus `REQUIREMENTS.md`, nach
+der auch noch nicht freigegebene Mitglieder auswählbar wären: Für neue
+Eventzuweisungen gilt derzeit die strengere Regel „freigegeben und nicht
+gesperrt“. Bereits zugewiesene Mitglieder bleiben bei einer späteren Sperre am
+Event historisch sichtbar, erhalten aber keinen geschützten Veranstalterzugriff.
+
 Jedes Event erhält genau einen zufälligen, stabilen Teilnahme-Token. Er wird in
 diesem Schritt weder angezeigt noch über eine Route veröffentlicht oder im Audit
 protokolliert. Änderungen und Löschungen wirken durch die dynamische Berechnung
