@@ -84,39 +84,67 @@ function publicEventSelect() {
         },
       },
     },
+    participations: {
+      select: {
+        id: true,
+        source: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            isApproved: true,
+            alias: { select: { displayAlias: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    },
   } satisfies Prisma.EventSelect;
 }
 
-export async function getEventAdminData() {
-  const prisma = getPrisma();
-  const [season, events, aliases] = await Promise.all([
-    prisma.season.findFirst({
-      where: { isActive: true, archivedAt: null },
-      select: { id: true, name: true, startsAt: true, endsAt: true },
-    }),
-    prisma.event.findMany({
-      where: { season: { isActive: true, archivedAt: null } },
-      select: publicEventSelect(),
-      orderBy: { startsAt: "asc" },
-    }),
-    prisma.aliasIdentity.findMany({
-      where: {
-        OR: [
-          { isReserved: true },
-          { user: { is: { isApproved: true, isBlocked: false } } },
-        ],
-      },
-      select: {
-        id: true,
-        displayAlias: true,
-        isReserved: true,
-        claimRequestedAt: true,
-        user: { select: { isApproved: true, isBlocked: true } },
-      },
-      orderBy: { normalizedAlias: "asc" },
-    }),
-  ]);
-  return { season, events, aliases };
+export async function getEventAdminData(actorId: string) {
+  return getPrisma().$transaction(async (tx) => {
+    await assertMainAdmin(tx, actorId);
+    const [season, events, aliases, participantCandidates] = await Promise.all([
+      tx.season.findFirst({
+        where: { isActive: true, archivedAt: null },
+        select: { id: true, name: true, startsAt: true, endsAt: true },
+      }),
+      tx.event.findMany({
+        where: { season: { isActive: true, archivedAt: null } },
+        select: publicEventSelect(),
+        orderBy: { startsAt: "asc" },
+      }),
+      tx.aliasIdentity.findMany({
+        where: {
+          OR: [
+            { isReserved: true },
+            { user: { is: { isApproved: true, isBlocked: false } } },
+          ],
+        },
+        select: {
+          id: true,
+          displayAlias: true,
+          isReserved: true,
+          claimRequestedAt: true,
+          user: { select: { isApproved: true, isBlocked: true } },
+        },
+        orderBy: { normalizedAlias: "asc" },
+      }),
+      tx.user.findMany({
+        where: { isBlocked: false },
+        select: {
+          id: true,
+          name: true,
+          isApproved: true,
+          alias: { select: { displayAlias: true } },
+        },
+        orderBy: { alias: { normalizedAlias: "asc" } },
+      }),
+    ]);
+    return { season, events, aliases, participantCandidates };
+  });
 }
 
 type Result = { ok: true; eventId?: string } | { ok: false; message: string };

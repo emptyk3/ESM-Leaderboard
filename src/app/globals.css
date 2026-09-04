@@ -305,6 +305,101 @@ textarea {
 .scan-result p {
   margin: 0;
 }
+.member-admin-card {
+  width: min(100%, 72rem);
+}
+.member-search {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1rem 0 2rem;
+}
+.member-search > div {
+  display: flex;
+  gap: 0.6rem;
+}
+.member-search input,
+.participation-admin select {
+  width: 100%;
+  border: 1px solid #6c7666;
+  border-radius: 0.45rem;
+  padding: 0.75rem;
+  background: #111;
+  color: var(--cream);
+  font: inherit;
+}
+.member-search button {
+  border: 0;
+  border-radius: 0.45rem;
+  padding: 0.7rem 1rem;
+  background: var(--green);
+  color: white;
+  font-weight: 700;
+}
+.member-list {
+  display: grid;
+  gap: 1rem;
+}
+.member-card {
+  padding: 1rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.65rem;
+  background: #111;
+}
+.member-card h3 {
+  margin: 0;
+  color: var(--cream);
+}
+.member-card p {
+  margin: 0.45rem 0;
+}
+.member-card-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.claim-notice {
+  padding: 0.75rem;
+  border-left: 4px solid #ffd15c;
+  background: #2a2418;
+}
+.member-security {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.member-security .danger-zone {
+  grid-column: 1 / -1;
+}
+.participation-admin {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #3c4a35;
+}
+.participation-admin ul {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.participation-admin li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.45rem;
+}
+.participation-admin li form {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+.participation-admin li button {
+  border: 0;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  color: white;
+}
 .auth-form button {
   margin-top: 1rem;
   border: 0;
@@ -550,6 +645,12 @@ tbody tr:last-child td {
   }
   .qr-heading {
     flex-direction: column;
+  }
+  .member-security {
+    grid-template-columns: 1fr;
+  }
+  .participation-admin li {
+    grid-template-columns: 1fr;
   }
 }
 

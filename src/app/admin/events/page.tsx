@@ -6,6 +6,7 @@ import {
   ReserveAliasForm,
 } from "@/components/event-forms";
 import { eventStatus } from "@/domain/event";
+import { ParticipationAdmin } from "@/components/participation-admin";
 import { formatViennaDate, formatViennaDateTime } from "@/domain/vienna-date";
 import { getEventAdminData } from "@/server/event-service";
 import { getRequiredUser } from "@/server/session-cookie";
@@ -15,7 +16,8 @@ export const dynamic = "force-dynamic";
 export default async function EventAdminPage() {
   const user = await getRequiredUser();
   if (!user?.isMainAdmin) redirect("/konto");
-  const { season, events, aliases } = await getEventAdminData();
+  const { season, events, aliases, participantCandidates } =
+    await getEventAdminData(user.id);
   return (
     <main className="page-shell admin-page">
       <section className="card event-admin-card">
@@ -108,6 +110,11 @@ export default async function EventAdminPage() {
                     <details className="admin-panel">
                       <summary>Details bearbeiten</summary>
                       <EditEventForm aliases={aliases} event={event} />
+                      <ParticipationAdmin
+                        eventId={event.id}
+                        participations={event.participations}
+                        candidates={participantCandidates}
+                      />
                       <DeleteEventForm eventId={event.id} title={event.title} />
                     </details>
                   </article>

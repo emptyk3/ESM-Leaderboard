@@ -120,6 +120,29 @@ scheinbarer In-Memory-Schutz eingebaut. Die hochentropischen Token, generischen
 Fehlermeldungen und cache-/referrergeschützten Antworten bilden bis zur späteren
 Einrichtung eines verteilten Rate Limiters die verbleibende Schutzgrenze.
 
+## Freigaben und Mitgliederverwaltung
+
+Unter `/admin/mitglieder` sieht ausschließlich der Hauptadmin offene Freigaben
+und die durchsuchbare Mitgliederliste. Freigabe, bestätigter Claim, Korrekturen,
+Sperren und Entsperren, Passwort-Reset sowie vollständige Löschung sind
+transaktionale, serverseitig autorisierte Aktionen. Sperre und Passwort-Reset
+widerrufen alle Sitzungen. Das Hauptadmin-Konto ist von diesen normalen
+Verwaltungsaktionen ausgeschlossen.
+
+Ein vorgemerkter reservierter Alias muss beim Freigeben ausdrücklich geclaimt
+werden. Alternativ erhält das Konto vorher eine neue eindeutige Alias-Identität,
+während die Reservierung bestehen bleibt. Beim Claim wird dieselbe Identität
+fortgeführt; überschneidende Teilnehmerrollen auf eigenen Veranstalter-Events
+werden entfernt. Dadurch werden Teilnehmer- und Veranstalterpunkte genau einmal
+gezählt und der freigegebene Claim erhält anschließend den vorgesehenen
+QR-Zugriff.
+
+Die Eventverwaltung zeigt Teilnehmer und erlaubt dem Hauptadmin manuelle
+Korrekturen ohne Eventzeitfenster, jedoch nur in der aktiven, nicht archivierten
+Saison. Sperrstatus, Duplikatschutz und Veranstalter-Ausschluss gelten weiterhin.
+Alle kritischen Aktionen werden mit IDs und minimalen fachlichen Angaben
+auditiert; Passwörter, Hashes, Sitzungs- und QR-Token werden nicht protokolliert.
+
 ## Deployment
 
 Das GitHub-Repository ist über die offizielle Git-Integration mit Vercel verbunden. Pushes auf den Produktionsbranch `main` lösen automatisch ein Production-Deployment aus. Die laufende Anwendung erhält in Vercel Production `DATABASE_URL` als gepoolte Neon-Verbindung. `DIRECT_URL` ist dort als direkte Verbindung für kontrollierte Prisma-Migrationsläufe hinterlegt. Der Vercel-Build führt `prisma migrate deploy` ausschließlich für Production aus und baut danach Next.js. Preview-Deployments überspringen Migrationen und erhalten vorerst keinen Zugriff auf die Produktionsdatenbank, solange keine verwaltete Neon-Preview-Verzweigung eingerichtet ist.

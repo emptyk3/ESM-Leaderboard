@@ -22,6 +22,7 @@ export async function SiteHeader() {
             {user.isMainAdmin && (
               <>
                 <Link href="/admin/events">Events</Link>
+                <Link href="/admin/mitglieder">Mitglieder</Link>
                 <Link href="/admin/saisonen">Saisonen</Link>
               </>
             )}

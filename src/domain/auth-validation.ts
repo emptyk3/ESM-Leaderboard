@@ -17,6 +17,13 @@ export type FieldErrors = Partial<Record<keyof RegistrationInput, string>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export function validateEmail(email: string): string | null {
+  const trimmed = email.trim();
+  return EMAIL_PATTERN.test(trimmed) && trimmed.length <= 320
+    ? null
+    : "Bitte gib eine gültige E-Mail-Adresse ein.";
+}
+
 export function validateRegistration(
   input: RegistrationInput,
 ): { ok: true; value: ValidRegistration } | { ok: false; errors: FieldErrors } {
@@ -27,7 +34,7 @@ export function validateRegistration(
     errors.name = "Bitte gib einen gültigen Namen ein.";
   const aliasError = validateAlias(input.alias);
   if (aliasError) errors.alias = aliasError;
-  if (!EMAIL_PATTERN.test(email) || email.length > 320)
+  if (validateEmail(email))
     errors.email = "Bitte gib eine gültige E-Mail-Adresse ein.";
   const passwordError = validatePassword(input.password);
   if (passwordError) errors.password = passwordError;

@@ -38,7 +38,7 @@ describe("event persistence invariants", () => {
   });
   it("authorizes every mutation inside its database transaction", () => {
     expect(service.match(/await assertMainAdmin\(tx, actorId\)/g)).toHaveLength(
-      4,
+      5,
     );
   });
   it("deletes through the event cascade and audits only aggregate counts", () => {
