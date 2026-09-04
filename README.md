@@ -60,6 +60,12 @@ npm run build
 
 Die erste Migration liegt unter `prisma/migrations/20260904000000_initial`. Sie wurde datenbankunabhängig aus dem validierten Schema erzeugt. `npm run db:migrate` wendet sie auf eine erreichbare PostgreSQL-Datenbank an.
 
+## Saisonen und Leaderboard
+
+Die Startseite zeigt ohne Anmeldung die aktive Vereinsjahres-Saison. Freigegebene Mitglieder werden einschließlich Null-Punkte-Mitgliedern angezeigt; gesperrte freigegebene Konten bleiben sichtbar. Die Punktzahl wird live aus Teilnehmer- und Veranstalterzuordnungen berechnet, Gleichstände verwenden Standard-Wettkampfränge (`1, 2, 2, 4`).
+
+Der Hauptadmin verwaltet Saisonen unter `/admin/saisonen`. Datumsfelder werden als lokale Tagesgrenzen in `Europe/Vienna` interpretiert. Beim Abschluss entstehen Snapshot, archivierte Saison, aktive Folgesaison und Audit-Eintrag atomar in einer serialisierbaren Transaktion. Die erwartete aktive Saison-ID und die Datenbank-Constraints schützen vor Doppelaufrufen. Archivierte Ranglisten sind unter `/archiv/[seasonId]` öffentlich abrufbar und durch Datenbank-Trigger gegen inhaltliche Änderungen geschützt.
+
 ## Deployment
 
 Das GitHub-Repository ist über die offizielle Git-Integration mit Vercel verbunden. Pushes auf den Produktionsbranch `main` lösen automatisch ein Production-Deployment aus. Die laufende Anwendung erhält in Vercel Production `DATABASE_URL` als gepoolte Neon-Verbindung. `DIRECT_URL` ist dort als direkte Verbindung für kontrollierte Prisma-Migrationsläufe hinterlegt. Der Vercel-Build führt `prisma migrate deploy` ausschließlich für Production aus und baut danach Next.js. Preview-Deployments überspringen Migrationen und erhalten vorerst keinen Zugriff auf die Produktionsdatenbank, solange keine verwaltete Neon-Preview-Verzweigung eingerichtet ist.
