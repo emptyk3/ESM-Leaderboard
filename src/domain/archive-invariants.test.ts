@@ -10,9 +10,11 @@ describe("Archiv- und Saisoninvarianten", () => {
   it("behält den Snapshot nach Änderungen oder Löschung der Live-Daten unverändert", () => {
     const live: LeaderboardMember[] = [
       {
+        identityId: "alias-1",
         userId: "1",
         alias: "Damals",
         normalizedAlias: "damals",
+        identityType: "MEMBER",
         isApproved: true,
         isBlocked: false,
         participations: [{ eventId: "event", points: 10 }],

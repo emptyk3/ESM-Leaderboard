@@ -1,9 +1,11 @@
 export type PointCredit = { eventId: string; points: number };
 
 export type LeaderboardMember = {
-  userId: string;
+  identityId: string;
+  userId: string | null;
   alias: string;
   normalizedAlias: string;
+  identityType: "MEMBER" | "RESERVED";
   isApproved: boolean;
   isBlocked: boolean;
   participations: PointCredit[];
@@ -16,18 +18,23 @@ export type PublicLeaderboardEntry = {
   points: number;
 };
 
-export type RankedMember = PublicLeaderboardEntry & { userId: string };
+export type RankedMember = PublicLeaderboardEntry & {
+  identityId: string;
+  userId: string | null;
+};
 
 export function calculateLeaderboard(
   members: LeaderboardMember[],
 ): RankedMember[] {
   const scored = members
-    .filter((member) => member.isApproved)
+    .filter((member) => member.identityType === "RESERVED" || member.isApproved)
     .map((member) => {
       const organizerEvents = new Set(
         member.organizerCredits.map((credit) => credit.eventId),
       );
-      const participantPoints = member.participations
+      const participantPoints = (
+        member.identityType === "RESERVED" ? [] : member.participations
+      )
         .filter((credit) => !organizerEvents.has(credit.eventId))
         .reduce((sum, credit) => sum + credit.points, 0);
       const organizerPoints = member.organizerCredits.reduce(
@@ -35,6 +42,7 @@ export function calculateLeaderboard(
         0,
       );
       return {
+        identityId: member.identityId,
         userId: member.userId,
         alias: member.alias,
         normalizedAlias: member.normalizedAlias,
@@ -54,6 +62,7 @@ export function calculateLeaderboard(
     previousPoints = member.points;
     previousRank = rank;
     return {
+      identityId: member.identityId,
       userId: member.userId,
       alias: member.alias,
       points: member.points,

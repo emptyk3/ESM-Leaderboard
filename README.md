@@ -80,6 +80,12 @@ Mitglieder und zentral reservierte Aliasse können mehrfach ausgewählt werden.
 Eine Registrierung mit reserviertem Alias setzt nur eine Claim-Vormerkung; die
 Bestätigung bleibt dem späteren Mitgliederverwaltungs-Schritt vorbehalten.
 
+Ungeclaimte reservierte Aliasse erscheinen bereits öffentlich im aktuellen
+Leaderboard. Ihre Punkte werden aus allen Veranstalterzuweisungen der aktiven
+Saison summiert und gemeinsam mit freigegebenen Konten gerankt. Eine lediglich
+vorgemerkte Registrierung ändert weder diese Wertung noch die Rechte; erst die
+spätere atomare Claim-Freigabe führt dieselbe Alias-Identität als Mitglied fort.
+
 Prompt 04 präzisiert hier die allgemeinere Aussage aus `REQUIREMENTS.md`, nach
 der auch noch nicht freigegebene Mitglieder auswählbar wären: Für neue
 Eventzuweisungen gilt derzeit die strengere Regel „freigegeben und nicht

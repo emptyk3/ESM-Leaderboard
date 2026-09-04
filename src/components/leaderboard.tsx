@@ -25,7 +25,7 @@ export function Leaderboard({
       </div>
       {data.entries.length === 0 ? (
         <p className="empty-state">
-          In dieser Saison sind noch keine freigegebenen Mitglieder sichtbar.
+          In dieser Saison sind noch keine Einträge sichtbar.
         </p>
       ) : (
         <div className="table-scroll">

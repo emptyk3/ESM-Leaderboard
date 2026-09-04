@@ -43,49 +43,55 @@ async function assertMainAdmin(tx: Prisma.TransactionClient, actorId: string) {
     );
 }
 
-async function loadMembers(
+async function loadLeaderboardIdentities(
   tx: Prisma.TransactionClient,
   seasonId: string,
 ): Promise<LeaderboardMember[]> {
-  const users = await tx.user.findMany({
-    where: { isApproved: true },
+  const aliases = await tx.aliasIdentity.findMany({
+    where: {
+      OR: [{ isReserved: true }, { user: { is: { isApproved: true } } }],
+    },
     select: {
       id: true,
-      isApproved: true,
-      isBlocked: true,
-      alias: {
+      displayAlias: true,
+      normalizedAlias: true,
+      isReserved: true,
+      organizerAssignments: {
+        where: { event: { seasonId } },
         select: {
-          displayAlias: true,
-          normalizedAlias: true,
-          organizerAssignments: {
+          eventId: true,
+          event: { select: { organizerPoints: true } },
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          isApproved: true,
+          isBlocked: true,
+          participations: {
             where: { event: { seasonId } },
             select: {
               eventId: true,
-              event: { select: { organizerPoints: true } },
+              event: { select: { participantPoints: true } },
             },
           },
         },
       },
-      participations: {
-        where: { event: { seasonId } },
-        select: {
-          eventId: true,
-          event: { select: { participantPoints: true } },
-        },
-      },
     },
   });
-  return users.map((user) => ({
-    userId: user.id,
-    alias: user.alias.displayAlias,
-    normalizedAlias: user.alias.normalizedAlias,
-    isApproved: user.isApproved,
-    isBlocked: user.isBlocked,
-    participations: user.participations.map((item) => ({
+  return aliases.map((alias) => ({
+    identityId: alias.id,
+    userId: alias.user?.id ?? null,
+    alias: alias.displayAlias,
+    normalizedAlias: alias.normalizedAlias,
+    identityType: alias.isReserved ? "RESERVED" : "MEMBER",
+    isApproved: alias.user?.isApproved ?? false,
+    isBlocked: alias.user?.isBlocked ?? false,
+    participations: (alias.user?.participations ?? []).map((item) => ({
       eventId: item.eventId,
       points: item.event.participantPoints,
     })),
-    organizerCredits: user.alias.organizerAssignments.map((item) => ({
+    organizerCredits: alias.organizerAssignments.map((item) => ({
       eventId: item.eventId,
       points: item.event.organizerPoints ?? 0,
     })),
@@ -100,9 +106,9 @@ export async function getActiveLeaderboard(): Promise<PublicLeaderboard | null> 
       select: { id: true, name: true, startsAt: true, endsAt: true },
     });
     if (!season) return null;
-    const entries = calculateLeaderboard(await loadMembers(tx, season.id)).map(
-      toPublicEntry,
-    );
+    const entries = calculateLeaderboard(
+      await loadLeaderboardIdentities(tx, season.id),
+    ).map(toPublicEntry);
     return { season, entries };
   });
 }
@@ -244,7 +250,9 @@ export async function closeSeasonAndOpenNext(
           throw new SeasonConflictError(
             "Die Saison wurde bereits abgeschlossen oder ist nicht mehr aktiv.",
           );
-        const ranked = calculateLeaderboard(await loadMembers(tx, active.id));
+        const ranked = calculateLeaderboard(
+          await loadLeaderboardIdentities(tx, active.id),
+        );
         const snapshot = await tx.seasonSnapshot.create({
           data: {
             seasonId: active.id,
