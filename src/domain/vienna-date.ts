@@ -1,4 +1,5 @@
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const DATE_TIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
 const formatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Vienna",
   year: "numeric",
@@ -73,6 +74,61 @@ export function viennaStartOfDay(value: string): Date {
     instant -= representedAsUtc - desiredAsUtc;
   }
   return new Date(instant);
+}
+
+export function viennaLocalDateTime(value: string): Date {
+  const match = DATE_TIME_PATTERN.exec(value);
+  if (!match) throw new Error("Bitte verwende ein gültiges Datum mit Uhrzeit.");
+  const desired = match.slice(1).map(Number);
+  const [year, month, day, hour, minute] = desired;
+  const calendarCheck = new Date(Date.UTC(year, month - 1, day, hour, minute));
+  if (
+    calendarCheck.getUTCFullYear() !== year ||
+    calendarCheck.getUTCMonth() + 1 !== month ||
+    calendarCheck.getUTCDate() !== day ||
+    hour > 23 ||
+    minute > 59
+  )
+    throw new Error("Bitte verwende ein gültiges Datum mit Uhrzeit.");
+
+  let instant = Date.UTC(year, month - 1, day, hour, minute);
+  const desiredAsUtc = instant;
+  for (let iteration = 0; iteration < 3; iteration += 1) {
+    const parts = localParts(new Date(instant));
+    instant -=
+      Date.UTC(
+        parts.year,
+        parts.month - 1,
+        parts.day,
+        parts.hour,
+        parts.minute,
+        parts.second,
+      ) - desiredAsUtc;
+  }
+  const result = new Date(instant);
+  const represented = localParts(result);
+  if (
+    represented.year !== year ||
+    represented.month !== month ||
+    represented.day !== day ||
+    represented.hour !== hour ||
+    represented.minute !== minute
+  )
+    throw new Error(
+      "Diese lokale Uhrzeit existiert wegen der Zeitumstellung nicht.",
+    );
+  return result;
+}
+
+export function formatViennaDateTime(date: Date): string {
+  return new Intl.DateTimeFormat("de-AT", {
+    timeZone: "Europe/Vienna",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 export function viennaEndOfDay(value: string): Date {

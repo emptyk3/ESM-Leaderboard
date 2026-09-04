@@ -60,11 +60,31 @@ npm run build
 
 Die erste Migration liegt unter `prisma/migrations/20260904000000_initial`. Sie wurde datenbankunabhängig aus dem validierten Schema erzeugt. `npm run db:migrate` wendet sie auf eine erreichbare PostgreSQL-Datenbank an.
 
+Die additive Migration `20260905000000_event_integrity_and_alias_claims`
+ergänzt die Claim-Vormerkung für reservierte Veranstalter-Aliasse. Trigger
+erzwingen zusätzlich Saisongrenzen, schützen archivierte Events und verhindern
+eine gleichzeitige Teilnehmer- und Veranstalterwertung desselben Mitglieds.
+
 ## Saisonen und Leaderboard
 
 Die Startseite zeigt ohne Anmeldung die aktive Vereinsjahres-Saison. Freigegebene Mitglieder werden einschließlich Null-Punkte-Mitgliedern angezeigt; gesperrte freigegebene Konten bleiben sichtbar. Die Punktzahl wird live aus Teilnehmer- und Veranstalterzuordnungen berechnet, Gleichstände verwenden Standard-Wettkampfränge (`1, 2, 2, 4`).
 
 Der Hauptadmin verwaltet Saisonen unter `/admin/saisonen`. Datumsfelder werden als lokale Tagesgrenzen in `Europe/Vienna` interpretiert. Beim Abschluss entstehen Snapshot, archivierte Saison, aktive Folgesaison und Audit-Eintrag atomar in einer serialisierbaren Transaktion. Die erwartete aktive Saison-ID und die Datenbank-Constraints schützen vor Doppelaufrufen. Archivierte Ranglisten sind unter `/archiv/[seasonId]` öffentlich abrufbar und durch Datenbank-Trigger gegen inhaltliche Änderungen geschützt.
+
+## Events und Veranstalter
+
+Unter `/admin/events` verwaltet ausschließlich der Hauptadmin Events der aktiven
+Saison. Eingaben werden als lokale Uhrzeit in `Europe/Vienna` interpretiert und
+als eindeutiger UTC-Zeitpunkt gespeichert. Freigegebene, nicht gesperrte
+Mitglieder und zentral reservierte Aliasse können mehrfach ausgewählt werden.
+Eine Registrierung mit reserviertem Alias setzt nur eine Claim-Vormerkung; die
+Bestätigung bleibt dem späteren Mitgliederverwaltungs-Schritt vorbehalten.
+
+Jedes Event erhält genau einen zufälligen, stabilen Teilnahme-Token. Er wird in
+diesem Schritt weder angezeigt noch über eine Route veröffentlicht oder im Audit
+protokolliert. Änderungen und Löschungen wirken durch die dynamische Berechnung
+sofort auf die Live-Rangliste, während vorhandene Saison-Snapshots unabhängig
+und unveränderlich bleiben.
 
 ## Deployment
 

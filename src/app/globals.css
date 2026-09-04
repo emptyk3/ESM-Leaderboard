@@ -38,7 +38,8 @@ a {
   color: #9be600;
 }
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 .site-header {
@@ -101,7 +102,8 @@ input {
   margin-top: 0.55rem;
   font-weight: 700;
 }
-.auth-form input {
+.auth-form input,
+.auth-form textarea {
   width: 100%;
   border: 1px solid #6c7666;
   border-radius: 0.45rem;
@@ -109,9 +111,97 @@ input {
   background: #111;
   color: var(--cream);
 }
-.auth-form input:focus {
+.auth-form input:focus,
+.auth-form textarea:focus {
   outline: 3px solid rgb(155 230 0 / 35%);
   border-color: #9be600;
+}
+.event-admin-card {
+  width: min(100%, 68rem);
+}
+.admin-panel {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.65rem;
+  background: #171717;
+}
+.admin-panel > summary {
+  cursor: pointer;
+  color: #9be600;
+  font-weight: 700;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.event-form label,
+.compact-form label {
+  display: grid;
+  gap: 0.45rem;
+}
+.organizer-picker {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  border: 1px solid #4d5848;
+  border-radius: 0.5rem;
+}
+.organizer-picker label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-weight: 400;
+}
+.organizer-picker input {
+  width: auto;
+}
+.event-list {
+  margin-top: 2rem;
+}
+.event-card {
+  margin-top: 1rem;
+  padding: 1.1rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.65rem;
+  background: #111;
+}
+.event-card h3 {
+  margin: 0.45rem 0;
+  color: var(--cream);
+  font-size: 1.3rem;
+}
+.event-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.event-summary p {
+  margin: 0;
+  color: #d7dbd2;
+}
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: #245f00;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.point-summary {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.25rem 0.6rem;
+  min-width: 13rem;
+}
+.point-summary strong {
+  color: #ffd15c;
+  text-align: right;
+}
+.danger-button {
+  background: #8a3b20 !important;
 }
 .auth-form button {
   margin-top: 1rem;
@@ -344,5 +434,11 @@ tbody tr:last-child td {
   }
   .closure-summary {
     grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .event-summary {
+    flex-direction: column;
   }
 }

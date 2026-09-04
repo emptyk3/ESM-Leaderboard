@@ -19,7 +19,12 @@ export async function SiteHeader() {
       <nav aria-label="Hauptnavigation">
         {user ? (
           <>
-            {user.isMainAdmin && <Link href="/admin/saisonen">Saisonen</Link>}
+            {user.isMainAdmin && (
+              <>
+                <Link href="/admin/events">Events</Link>
+                <Link href="/admin/saisonen">Saisonen</Link>
+              </>
+            )}
             <Link href="/konto">Konto</Link>
             <form action={logoutAction}>
               <button className="link-button">Abmelden</button>

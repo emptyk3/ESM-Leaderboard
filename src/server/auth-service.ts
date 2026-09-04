@@ -27,6 +27,8 @@ export type RegistrationResult =
   | { ok: true }
   | { ok: false; fieldErrors?: Record<string, string>; message?: string };
 
+class DuplicateIdentityError extends Error {}
+
 export async function registerUser(
   input: RegistrationInput,
 ): Promise<RegistrationResult> {
@@ -35,24 +37,46 @@ export async function registerUser(
   const value = validated.value;
   const passwordHash = await hashPassword(value.password);
   try {
-    await getPrisma().user.create({
-      data: {
-        name: value.name,
-        email: value.email,
-        normalizedEmail: value.normalizedEmail,
-        passwordHash,
-        isApproved: false,
-        isBlocked: false,
-        alias: {
-          create: {
-            displayAlias: value.alias,
-            normalizedAlias: value.normalizedAlias,
-          },
+    await getPrisma().$transaction(async (tx) => {
+      const reserved = await tx.aliasIdentity.findUnique({
+        where: { normalizedAlias: value.normalizedAlias },
+        select: { id: true, isReserved: true, user: { select: { id: true } } },
+      });
+      if (reserved && (!reserved.isReserved || reserved.user)) {
+        throw new DuplicateIdentityError();
+      }
+      await tx.user.create({
+        data: {
+          name: value.name,
+          email: value.email,
+          normalizedEmail: value.normalizedEmail,
+          passwordHash,
+          isApproved: false,
+          isBlocked: false,
+          alias: reserved
+            ? { connect: { id: reserved.id } }
+            : {
+                create: {
+                  displayAlias: value.alias,
+                  normalizedAlias: value.normalizedAlias,
+                },
+              },
         },
-      },
+      });
+      if (reserved) {
+        await tx.aliasIdentity.update({
+          where: { id: reserved.id },
+          data: { claimRequestedAt: new Date() },
+        });
+      }
     });
     return { ok: true };
   } catch (error) {
+    if (error instanceof DuplicateIdentityError)
+      return {
+        ok: false,
+        message: "Alias oder E-Mail-Adresse kann nicht verwendet werden.",
+      };
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
@@ -155,6 +179,21 @@ export async function updateOwnAlias(
   const { validateAlias, normalizeAlias } = await import("@/domain/identity");
   const error = validateAlias(alias);
   if (error) return { ok: false, message: error };
+  const current = await getPrisma().user.findUnique({
+    where: { id: userId },
+    select: { isBlocked: true, alias: { select: { isReserved: true } } },
+  });
+  if (!current || current.isBlocked)
+    return {
+      ok: false,
+      message: "Diese Aktion ist für das Konto nicht verfügbar.",
+    };
+  if (current.alias.isReserved)
+    return {
+      ok: false,
+      message:
+        "Der reservierte Alias wartet auf die Freigabe durch den Hauptadmin.",
+    };
   try {
     await getPrisma().user.update({
       where: { id: userId, isBlocked: false },
