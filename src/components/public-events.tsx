@@ -11,6 +11,12 @@ export function PublicEventGroup({
   status: string;
   events: PublicEventSummary[];
 }) {
+  const emptyMessage =
+    status === "Laufend"
+      ? "Keine laufenden Events."
+      : status === "Kommend"
+        ? "Keine kommenden Events."
+        : "Keine vergangenen Events.";
   return (
     <section className="public-event-group">
       <h2>{title}</h2>
@@ -32,7 +38,7 @@ export function PublicEventGroup({
           ))}
         </ul>
       ) : (
-        <p>Keine {title.toLocaleLowerCase("de-AT")} Events.</p>
+        <p>{emptyMessage}</p>
       )}
     </section>
   );
