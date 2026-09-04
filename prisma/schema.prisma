@@ -1,0 +1,238 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ParticipationSource {
+  QR_SCAN
+  MANUAL
+}
+
+enum AuditAction {
+  USER_DELETED
+  USER_APPROVED
+  USER_BLOCKED
+  USER_UNBLOCKED
+  USER_UPDATED
+  PASSWORD_RESET
+  EVENT_CREATED
+  EVENT_UPDATED
+  EVENT_DELETED
+  EVENT_POINTS_CHANGED
+  PARTICIPATION_ADDED_MANUALLY
+  PARTICIPATION_DELETED
+  SEASON_CREATED
+  SEASON_ARCHIVED
+  ORGANIZER_ALIAS_RESERVED
+  ORGANIZER_ALIAS_CLAIMED
+}
+
+model AliasIdentity {
+  id              String   @id @default(cuid())
+  displayAlias    String   @db.VarChar(120)
+  normalizedAlias String   @unique @db.VarChar(120)
+  isReserved      Boolean  @default(false)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+
+  user                   User?
+  organizerAssignments   EventOrganizer[]
+  snapshotOrganizerLinks SeasonSnapshotOrganizer[]
+
+  @@index([displayAlias])
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String    @db.VarChar(200)
+  normalizedEmail String    @unique @db.VarChar(320)
+  email           String    @db.VarChar(320)
+  passwordHash    String
+  isApproved      Boolean   @default(false)
+  approvedAt      DateTime? @db.Timestamptz(6)
+  isBlocked       Boolean   @default(false)
+  blockedAt       DateTime? @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+  aliasId         String    @unique
+
+  alias           AliasIdentity         @relation(fields: [aliasId], references: [id], onDelete: Restrict)
+  mainAdmin       MainAdmin?
+  sessions        Session[]
+  participations  EventParticipation[]
+  snapshotEntries SeasonSnapshotEntry[]
+  auditActions    AuditEntry[]          @relation("AuditActor")
+
+  @@index([isApproved, isBlocked])
+}
+
+/// Singleton assignment: the migration constrains id to the constant value 1.
+model MainAdmin {
+  id        Int      @id @default(1)
+  userId    String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  userId     String
+  expiresAt  DateTime @db.Timestamptz(6)
+  lastUsedAt DateTime @default(now()) @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Season {
+  id         String    @id @default(cuid())
+  name       String    @unique @db.VarChar(7)
+  startsAt   DateTime  @db.Timestamptz(6)
+  endsAt     DateTime  @db.Timestamptz(6)
+  isActive   Boolean   @default(false)
+  archivedAt DateTime? @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(6)
+
+  events   Event[]
+  snapshot SeasonSnapshot?
+
+  @@index([isActive])
+  @@index([startsAt, endsAt])
+}
+
+model Event {
+  id                 String   @id @default(cuid())
+  seasonId           String
+  title              String   @db.VarChar(200)
+  description        String
+  location           String   @db.VarChar(300)
+  startsAt           DateTime @db.Timestamptz(6)
+  endsAt             DateTime @db.Timestamptz(6)
+  participantPoints  Int
+  organizerPoints    Int?
+  /// Opaque high-entropy secret used to reproduce this event's one stable QR link.
+  participationToken String   @unique
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(6)
+
+  season         Season               @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  organizers     EventOrganizer[]
+  participations EventParticipation[]
+
+  @@index([seasonId, startsAt])
+  @@index([startsAt, endsAt])
+}
+
+model EventOrganizer {
+  eventId    String
+  aliasId    String
+  assignedAt DateTime @default(now()) @db.Timestamptz(6)
+
+  event Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  alias AliasIdentity @relation(fields: [aliasId], references: [id], onDelete: Restrict)
+
+  @@id([eventId, aliasId])
+  @@index([aliasId])
+}
+
+model EventParticipation {
+  id        String              @id @default(cuid())
+  eventId   String
+  userId    String
+  source    ParticipationSource
+  createdAt DateTime            @default(now()) @db.Timestamptz(6)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId, eventId])
+  @@index([eventId, createdAt])
+}
+
+/// Immutable copy created atomically when a season is archived.
+model SeasonSnapshot {
+  id         String   @id @default(cuid())
+  seasonId   String   @unique
+  seasonName String   @db.VarChar(7)
+  startsAt   DateTime @db.Timestamptz(6)
+  endsAt     DateTime @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+
+  season     Season                    @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  entries    SeasonSnapshotEntry[]
+  events     SeasonSnapshotEvent[]
+  organizers SeasonSnapshotOrganizer[]
+}
+
+model SeasonSnapshotEntry {
+  id         String  @id @default(cuid())
+  snapshotId String
+  userId     String?
+  alias      String  @db.VarChar(120)
+  points     Int
+  rank       Int
+
+  snapshot SeasonSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
+  user     User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([snapshotId, rank, alias])
+  @@index([snapshotId, points, alias])
+  @@index([userId])
+}
+
+model SeasonSnapshotEvent {
+  id                String   @id @default(cuid())
+  snapshotId        String
+  sourceEventId     String
+  title             String   @db.VarChar(200)
+  description       String
+  location          String   @db.VarChar(300)
+  startsAt          DateTime @db.Timestamptz(6)
+  endsAt            DateTime @db.Timestamptz(6)
+  participantPoints Int
+
+  snapshot SeasonSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
+
+  @@unique([snapshotId, sourceEventId])
+  @@index([snapshotId, startsAt])
+}
+
+model SeasonSnapshotOrganizer {
+  id              String  @id @default(cuid())
+  snapshotId      String
+  sourceEventId   String
+  alias           String  @db.VarChar(120)
+  aliasIdentityId String?
+
+  snapshot      SeasonSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Restrict)
+  aliasIdentity AliasIdentity? @relation(fields: [aliasIdentityId], references: [id], onDelete: SetNull)
+
+  @@unique([snapshotId, sourceEventId, alias])
+  @@index([snapshotId, sourceEventId])
+  @@index([aliasIdentityId])
+}
+
+model AuditEntry {
+  id          String      @id @default(cuid())
+  action      AuditAction
+  actorId     String?
+  subjectType String      @db.VarChar(80)
+  subjectId   String?     @db.VarChar(200)
+  metadata    Json?
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([subjectType, subjectId])
+}
