@@ -91,6 +91,7 @@ describe("Sicherheitsabschluss", () => {
       expect(config).toContain(header);
     expect(config).toContain("frame-ancestors 'none'");
     expect(config).toContain("form-action 'self'");
+    expect(config).toContain("poweredByHeader: false");
   });
   it("hält Sitzungscookies und Server Actions same-site", () => {
     const cookie = read("src/server/session-cookie.ts");
