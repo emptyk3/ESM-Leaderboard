@@ -42,7 +42,16 @@ export function Leaderboard({
                 <tr key={`${entry.rank}-${entry.alias}`}>
                   <td className="rank">{entry.rank}</td>
                   <td>
-                    <span className="member-alias">{entry.alias}</span>
+                    {entry.profileId ? (
+                      <Link
+                        className="member-alias"
+                        href={`/profil/${entry.profileId}`}
+                      >
+                        {entry.alias}
+                      </Link>
+                    ) : (
+                      <span className="member-alias">{entry.alias}</span>
+                    )}
                   </td>
                   <td className="points">{entry.points}</td>
                 </tr>

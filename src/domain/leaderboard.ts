@@ -16,6 +16,7 @@ export type PublicLeaderboardEntry = {
   rank: number;
   alias: string;
   points: number;
+  profileId?: string;
 };
 
 export type RankedMember = PublicLeaderboardEntry & {
@@ -71,6 +72,14 @@ export function calculateLeaderboard(
   });
 }
 
-export function toPublicEntry(entry: RankedMember): PublicLeaderboardEntry {
-  return { rank: entry.rank, alias: entry.alias, points: entry.points };
+export function toPublicEntry(
+  entry: RankedMember,
+  profileId?: string,
+): PublicLeaderboardEntry {
+  return {
+    rank: entry.rank,
+    alias: entry.alias,
+    points: entry.points,
+    ...(profileId ? { profileId } : {}),
+  };
 }

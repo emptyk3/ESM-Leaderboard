@@ -32,6 +32,8 @@ async function admin() {
 }
 function refresh() {
   revalidatePath("/");
+  revalidatePath("/events");
+  revalidatePath("/profil", "layout");
   revalidatePath("/admin/events");
 }
 

@@ -21,6 +21,8 @@ async function actor() {
 }
 function refresh() {
   revalidatePath("/");
+  revalidatePath("/events");
+  revalidatePath("/profil", "layout");
   revalidatePath("/admin/mitglieder");
   revalidatePath("/admin/events");
   revalidatePath("/veranstalter/events");

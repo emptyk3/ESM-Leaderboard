@@ -33,6 +33,7 @@ enum AuditAction {
 
 model AliasIdentity {
   id              String   @id @default(cuid())
+  publicId        String   @unique @default(uuid()) @db.Uuid
   displayAlias    String   @db.VarChar(120)
   normalizedAlias String   @unique @db.VarChar(120)
   isReserved      Boolean  @default(false)
@@ -112,6 +113,7 @@ model Season {
 
 model Event {
   id                 String   @id @default(cuid())
+  publicId           String   @unique @default(uuid()) @db.Uuid
   seasonId           String
   title              String   @db.VarChar(200)
   description        String
@@ -179,6 +181,7 @@ model SeasonSnapshotEntry {
   id         String  @id @default(cuid())
   snapshotId String
   userId     String?
+  aliasPublicId String? @db.Uuid
   alias      String  @db.VarChar(120)
   points     Int
   rank       Int
@@ -189,6 +192,7 @@ model SeasonSnapshotEntry {
   @@unique([snapshotId, rank, alias])
   @@index([snapshotId, points, alias])
   @@index([userId])
+  @@index([aliasPublicId])
 }
 
 model SeasonSnapshotEvent {

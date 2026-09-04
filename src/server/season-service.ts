@@ -106,9 +106,18 @@ export async function getActiveLeaderboard(): Promise<PublicLeaderboard | null> 
       select: { id: true, name: true, startsAt: true, endsAt: true },
     });
     if (!season) return null;
-    const entries = calculateLeaderboard(
-      await loadLeaderboardIdentities(tx, season.id),
-    ).map(toPublicEntry);
+    const identities = await loadLeaderboardIdentities(tx, season.id);
+    const profileIds = new Map(
+      (
+        await tx.aliasIdentity.findMany({
+          where: { id: { in: identities.map((item) => item.identityId) } },
+          select: { id: true, publicId: true },
+        })
+      ).map((item) => [item.id, item.publicId]),
+    );
+    const entries = calculateLeaderboard(identities).map((entry) =>
+      toPublicEntry(entry, profileIds.get(entry.identityId)),
+    );
     return { season, entries };
   });
 }
@@ -155,21 +164,28 @@ export async function getArchivedLeaderboard(
       seasonName: true,
       startsAt: true,
       endsAt: true,
-      entries: { select: { rank: true, alias: true, points: true } },
+      entries: {
+        select: { rank: true, alias: true, points: true, aliasPublicId: true },
+      },
     },
   });
   if (!snapshot) return null;
-  const entries = snapshot.entries.sort(
-    (a, b) =>
-      a.rank - b.rank ||
-      a.alias
-        .normalize("NFKC")
-        .toLocaleLowerCase("de-AT")
-        .localeCompare(
-          b.alias.normalize("NFKC").toLocaleLowerCase("de-AT"),
-          "de-AT",
-        ),
-  );
+  const entries = snapshot.entries
+    .map(({ aliasPublicId, ...entry }) => ({
+      ...entry,
+      ...(aliasPublicId ? { profileId: aliasPublicId } : {}),
+    }))
+    .sort(
+      (a, b) =>
+        a.rank - b.rank ||
+        a.alias
+          .normalize("NFKC")
+          .toLocaleLowerCase("de-AT")
+          .localeCompare(
+            b.alias.normalize("NFKC").toLocaleLowerCase("de-AT"),
+            "de-AT",
+          ),
+    );
   return {
     season: {
       id: snapshot.seasonId,
@@ -270,6 +286,14 @@ export async function closeSeasonAndOpenNext(
         const ranked = calculateLeaderboard(
           await loadLeaderboardIdentities(tx, active.id),
         );
+        const snapshotProfileIds = new Map(
+          (
+            await tx.aliasIdentity.findMany({
+              where: { id: { in: ranked.map((entry) => entry.identityId) } },
+              select: { id: true, publicId: true },
+            })
+          ).map((item) => [item.id, item.publicId]),
+        );
         const snapshot = await tx.seasonSnapshot.create({
           data: {
             seasonId: active.id,
@@ -279,6 +303,7 @@ export async function closeSeasonAndOpenNext(
             entries: {
               create: ranked.map((entry) => ({
                 userId: entry.userId,
+                aliasPublicId: snapshotProfileIds.get(entry.identityId),
                 rank: entry.rank,
                 alias: entry.alias,
                 points: entry.points,

@@ -21,7 +21,9 @@ describe("Archiv- und Saisoninvarianten", () => {
         organizerCredits: [],
       },
     ];
-    const snapshot = calculateLeaderboard(live).map(toPublicEntry);
+    const snapshot = calculateLeaderboard(live).map((entry) =>
+      toPublicEntry(entry),
+    );
     live[0].alias = "Heute";
     live[0].participations[0].points = 99;
     live.splice(0, 1);
@@ -41,5 +43,17 @@ describe("Archiv- und Saisoninvarianten", () => {
     expect(migration).toContain(
       'CREATE TRIGGER "SeasonSnapshotEntry_content_immutable"',
     );
+  });
+
+  it("friert die stabile öffentliche Profilkennung in neuen Archiven ein", () => {
+    const migration = readFileSync(
+      "prisma/migrations/20260906000000_public_identifiers/migration.sql",
+      "utf8",
+    );
+    expect(migration).toContain('"aliasPublicId" UUID');
+    expect(migration).toContain(
+      'UPDATE OF "snapshotId", "alias", "aliasPublicId", "points", "rank"',
+    );
+    expect(migration).not.toContain('FOREIGN KEY ("aliasPublicId")');
   });
 });

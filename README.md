@@ -143,6 +143,28 @@ Saison. Sperrstatus, Duplikatschutz und Veranstalter-Ausschluss gelten weiterhin
 Alle kritischen Aktionen werden mit IDs und minimalen fachlichen Angaben
 auditiert; Passwörter, Hashes, Sitzungs- und QR-Token werden nicht protokolliert.
 
+## Öffentliche Events und Aliasprofile
+
+Die öffentliche Navigation führt unter `/events` zu laufenden, kommenden und
+vergangenen Events der aktiven Saison. Detailseiten enthalten ausschließlich
+Titel, Beschreibung, Ort, Vienna-Zeitraum, Teilnehmerpunkte und verlinkte
+Veranstalter-Aliasse. Veranstalterpunkte, Teilnehmerlisten, interne IDs und
+QR-/Teilnahmeinformationen werden nicht in öffentliche DTOs aufgenommen.
+
+Leaderboard- und Veranstalter-Aliasse verlinken auf stabile öffentliche
+Profile. Freigegebene Mitglieder einschließlich gesperrter sichtbarer Konten und
+ungeclaimte reservierte Aliasse erhalten dieselbe Profilansicht. Teilnehmerrollen
+zeigen die öffentlichen Teilnehmerpunkte; Veranstalterrollen nennen keine
+Veranstalterpunktzahl. Archivprofile verwenden ausschließlich eingefrorene
+Snapshotwerte und weisen darauf hin, wenn keine historische Eventaufschlüsselung
+vorliegt.
+
+Die Migration `20260906000000_public_identifiers` ergänzt zufällige öffentliche
+UUIDs für Events und Alias-Identitäten. `aliasPublicId` wird als unabhängiger
+Skalar in neue Snapshot-Einträge kopiert und bleibt dadurch bei Claim,
+Aliasänderung oder Kontolöschung stabil, ohne interne Konto- oder Datenbank-IDs
+öffentlich zu machen.
+
 ## Deployment
 
 Das GitHub-Repository ist über die offizielle Git-Integration mit Vercel verbunden. Pushes auf den Produktionsbranch `main` lösen automatisch ein Production-Deployment aus. Die laufende Anwendung erhält in Vercel Production `DATABASE_URL` als gepoolte Neon-Verbindung. `DIRECT_URL` ist dort als direkte Verbindung für kontrollierte Prisma-Migrationsläufe hinterlegt. Der Vercel-Build führt `prisma migrate deploy` ausschließlich für Production aus und baut danach Next.js. Preview-Deployments überspringen Migrationen und erhalten vorerst keinen Zugriff auf die Produktionsdatenbank, solange keine verwaltete Neon-Preview-Verzweigung eingerichtet ist.

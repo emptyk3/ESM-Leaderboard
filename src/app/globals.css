@@ -400,6 +400,114 @@ textarea {
   padding: 0.5rem;
   color: white;
 }
+.public-page {
+  width: min(100% - 2rem, 64rem);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) 0;
+}
+.public-page > header {
+  margin-bottom: 2rem;
+}
+.public-page h1 {
+  margin: 0.35rem 0;
+}
+.public-event-group {
+  padding: 1rem 0;
+  border-top: 1px solid #3c4a35;
+}
+.public-event-group ul,
+.profile-events {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+.public-event-group li a,
+.profile-events li a {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.4fr auto auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.55rem;
+  background: var(--charcoal);
+  color: var(--cream);
+  text-decoration: none;
+}
+.public-event-detail {
+  margin-top: 1rem;
+  padding: clamp(1.2rem, 4vw, 2rem);
+  border: 1px solid #245f00;
+  border-radius: 0.75rem;
+  background: var(--charcoal);
+}
+.public-event-detail dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.public-event-detail dl div {
+  padding: 0.75rem;
+  background: #111;
+  border-radius: 0.4rem;
+}
+.public-event-detail dt {
+  color: #b9c3b1;
+  font-size: 0.85rem;
+}
+.public-event-detail dd {
+  margin: 0.3rem 0 0;
+  font-weight: 700;
+}
+.alias-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+.alias-links a,
+.profile-seasons a {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--green);
+  border-radius: 0.4rem;
+  text-decoration: none;
+}
+.profile-heading {
+  padding: 1.3rem 0;
+  border-bottom: 1px solid #3c4a35;
+}
+.profile-score {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.profile-score span {
+  min-width: 7rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--charcoal);
+}
+.profile-score strong {
+  display: block;
+  color: #ffd15c;
+  font-size: 1.5rem;
+}
+.profile-seasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+.profile-seasons a[aria-current="page"] {
+  background: var(--green);
+  color: white;
+}
+.profile-events li a {
+  grid-template-columns: 1.5fr 1fr 1fr;
+}
 .auth-form button {
   margin-top: 1rem;
   border: 0;
@@ -650,6 +758,14 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
   .participation-admin li {
+    grid-template-columns: 1fr;
+  }
+  .public-event-group li a,
+  .profile-events li a {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  .public-event-detail dl {
     grid-template-columns: 1fr;
   }
 }

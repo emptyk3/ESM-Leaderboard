@@ -26,6 +26,7 @@ export async function confirmParticipationAction(
   );
   if (result.status === "SUCCESS") {
     revalidatePath("/");
+    revalidatePath("/profil", "layout");
     return {
       status: "success",
       title: result.title,

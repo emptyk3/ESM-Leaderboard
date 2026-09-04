@@ -17,6 +17,7 @@ export async function SiteHeader() {
         <span>eSports Mostviertel</span>
       </Link>
       <nav aria-label="Hauptnavigation">
+        <Link href="/events">Events</Link>
         {user ? (
           <>
             {user.isMainAdmin && (
