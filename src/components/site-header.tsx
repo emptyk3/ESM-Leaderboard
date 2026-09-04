@@ -25,6 +25,9 @@ export async function SiteHeader() {
                 <Link href="/admin/saisonen">Saisonen</Link>
               </>
             )}
+            {(user.isMainAdmin || user.isApproved) && (
+              <Link href="/veranstalter/events">QR-Codes</Link>
+            )}
             <Link href="/konto">Konto</Link>
             <form action={logoutAction}>
               <button className="link-button">Abmelden</button>

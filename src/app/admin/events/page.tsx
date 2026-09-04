@@ -42,6 +42,27 @@ export default async function EventAdminPage() {
               <CreateEventForm aliases={aliases} />
             </details>
             <section className="event-list">
+              <h2>Laufende Events</h2>
+              {events.filter((event) => eventStatus(event) === "Laufend")
+                .length ? (
+                <ul className="running-event-list">
+                  {events
+                    .filter((event) => eventStatus(event) === "Laufend")
+                    .map((event) => (
+                      <li key={event.id}>
+                        <strong>{event.title}</strong>
+                        <a
+                          className="button-link"
+                          href={`/events/${event.id}/qr`}
+                        >
+                          Präsentationsansicht
+                        </a>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p>Derzeit läuft kein Event.</p>
+              )}
               <h2>Events der aktiven Saison</h2>
               {events.length === 0 ? (
                 <p>Noch keine Events angelegt.</p>
@@ -78,6 +99,11 @@ export default async function EventAdminPage() {
                             .map((item) => item.alias.displayAlias)
                             .join(", ")
                         : "keine"}
+                    </p>
+                    <p>
+                      <a href={`/events/${event.id}/qr`}>
+                        QR-Code und Präsentationsansicht
+                      </a>
                     </p>
                     <details className="admin-panel">
                       <summary>Details bearbeiten</summary>

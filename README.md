@@ -20,6 +20,7 @@ Die Anwendung ist anschließend unter `http://localhost:3000` erreichbar. Regist
 
 - `DATABASE_URL`: gepoolte PostgreSQL-Verbindung der laufenden Anwendung; bei Neon enthält der Host üblicherweise `-pooler`.
 - `DIRECT_URL`: direkte, ungepoolte PostgreSQL-Verbindung ausschließlich für Prisma CLI und Migrationen.
+- `APP_URL`: optionale kanonische Basisadresse für QR-Links, lokal etwa `http://localhost:3000`. In Vercel wird ohne diesen Wert automatisch die stabile Production-URL verwendet; Produktion erzwingt HTTPS.
 - `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_ALIAS`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`: Konfiguration für den initialen Hauptadmin.
 
 Echte Werte gehören ausschließlich in `.env` beziehungsweise `.env.local`; beide werden von Git ignoriert.
@@ -97,6 +98,27 @@ diesem Schritt weder angezeigt noch über eine Route veröffentlicht oder im Aud
 protokolliert. Änderungen und Löschungen wirken durch die dynamische Berechnung
 sofort auf die Live-Rangliste, während vorhandene Saison-Snapshots unabhängig
 und unveränderlich bleiben.
+
+## QR-Code und Teilnahme
+
+Berechtigte Hauptadmins und registrierte, freigegebene, nicht gesperrte
+Veranstalter erreichen ihre QR-Übersicht unter `/veranstalter/events`. Die
+Präsentationsansicht unterstützt Beamer, PNG-Download und ein reduziertes
+Drucklayout. QR- und Scanantworten sind `noindex`, verwenden `no-store` und
+unterdrücken Referrer. Öffentliche Seiten enthalten weder Token noch QR-Link.
+
+Die Scanroute führt nur eine serverseitige Tokenprüfung aus. Eine Teilnahme
+entsteht erst nach ausdrücklicher Bestätigung über eine Server Action. Serverzeit,
+Eventzeitraum, aktiver Saisonstatus, Kontosperre und Veranstalter-Doppelwertung
+werden innerhalb der transaktionalen Erfassung erneut geprüft. Der eindeutige
+Constraint auf Event und Benutzer verhindert doppelte Punkte auch bei parallelen
+Scans; Live-Punkte bleiben abgeleitet.
+
+Eine verteilte Begrenzung ungültiger Tokenversuche ist ohne gemeinsamen
+Rate-Limit-Speicher nicht zuverlässig umsetzbar und wurde daher nicht als
+scheinbarer In-Memory-Schutz eingebaut. Die hochentropischen Token, generischen
+Fehlermeldungen und cache-/referrergeschützten Antworten bilden bis zur späteren
+Einrichtung eines verteilten Rate Limiters die verbleibende Schutzgrenze.
 
 ## Deployment
 

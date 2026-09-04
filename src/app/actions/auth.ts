@@ -14,6 +14,7 @@ import {
   setSessionCookie,
 } from "@/server/session-cookie";
 import { cookies } from "next/headers";
+import { safeScanReturnPath } from "@/domain/participation";
 
 export type FormState = {
   status?: "error" | "success";
@@ -67,7 +68,7 @@ export async function loginAction(
     };
   }
   await setSessionCookie(result.token, result.expiresAt);
-  redirect("/konto");
+  redirect(safeScanReturnPath(field(formData, "returnTo")) ?? "/konto");
 }
 
 export async function logoutAction(): Promise<void> {

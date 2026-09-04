@@ -113,6 +113,23 @@ export async function getActiveLeaderboard(): Promise<PublicLeaderboard | null> 
   });
 }
 
+export async function getActiveRankForUser(
+  userId: string,
+): Promise<number | null> {
+  return getPrisma().$transaction(async (tx) => {
+    const season = await tx.season.findFirst({
+      where: { isActive: true, archivedAt: null },
+      select: { id: true },
+    });
+    if (!season) return null;
+    return (
+      calculateLeaderboard(await loadLeaderboardIdentities(tx, season.id)).find(
+        (entry) => entry.userId === userId,
+      )?.rank ?? null
+    );
+  });
+}
+
 export async function getArchivedLeaderboards(): Promise<SeasonOverview[]> {
   return getPrisma().season.findMany({
     where: { archivedAt: { not: null }, snapshot: { isNot: null } },

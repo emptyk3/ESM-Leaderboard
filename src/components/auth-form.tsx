@@ -92,10 +92,11 @@ export function RegistrationForm() {
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ returnTo }: { returnTo?: string }) {
   const [state, action, pending] = useActionState(loginAction, initialState);
   return (
     <form action={action} className="auth-form">
+      {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
       <label htmlFor="identifier">Alias oder E-Mail-Adresse</label>
       <input
         id="identifier"
