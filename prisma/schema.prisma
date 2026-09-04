@@ -31,6 +31,11 @@ enum AuditAction {
   ORGANIZER_ALIAS_CLAIMED
 }
 
+enum RateLimitPurpose {
+  LOGIN
+  INVALID_QR
+}
+
 model AliasIdentity {
   id              String   @id @default(cuid())
   publicId        String   @unique @default(uuid()) @db.Uuid
@@ -241,4 +246,17 @@ model AuditEntry {
   @@index([createdAt])
   @@index([action, createdAt])
   @@index([subjectType, subjectId])
+}
+
+/// Shared, privacy-preserving abuse counter. `key` is an HMAC and never raw request data.
+model RateLimitBucket {
+  key         String           @id @db.VarChar(64)
+  purpose     RateLimitPurpose
+  attempts    Int              @default(0)
+  windowStart DateTime         @db.Timestamptz(6)
+  expiresAt   DateTime         @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+
+  @@index([expiresAt])
+  @@index([purpose, expiresAt])
 }

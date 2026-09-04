@@ -25,6 +25,7 @@ export async function SiteHeader() {
                 <Link href="/admin/events">Events</Link>
                 <Link href="/admin/mitglieder">Mitglieder</Link>
                 <Link href="/admin/saisonen">Saisonen</Link>
+                <Link href="/admin/audit">Audit-Protokoll</Link>
               </>
             )}
             {(user.isMainAdmin || user.isApproved) && (

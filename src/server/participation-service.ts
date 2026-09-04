@@ -11,6 +11,7 @@ import {
 import type { SafeUser } from "./auth-service";
 import { getPrisma } from "./prisma";
 import { getActiveRankForUser } from "./season-service";
+import { isRateLimited, recordFailedAttempt } from "./rate-limit-service";
 
 const qrEventSelect = {
   id: true,
@@ -106,8 +107,13 @@ export type ScanEvent = {
 export async function getScanEvent(
   token: string,
   userId?: string,
+  fingerprint = "local-development",
 ): Promise<ScanEvent | null> {
-  if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) return null;
+  if (await isRateLimited("INVALID_QR", fingerprint)) return null;
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) {
+    await recordFailedAttempt("INVALID_QR", fingerprint);
+    return null;
+  }
   const event = await getPrisma().event.findUnique({
     where: { participationToken: token },
     select: {
@@ -121,7 +127,10 @@ export async function getScanEvent(
         : false,
     },
   });
-  if (!event) return null;
+  if (!event) {
+    await recordFailedAttempt("INVALID_QR", fingerprint);
+    return null;
+  }
   return {
     title: event.title,
     location: event.location,
@@ -161,8 +170,14 @@ export async function recordQrParticipation(
   userId: string,
   token: string,
   now = new Date(),
+  fingerprint = "local-development",
 ): Promise<ParticipationResult> {
-  if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) return { status: "INVALID" };
+  if (await isRateLimited("INVALID_QR", fingerprint))
+    return { status: "INVALID" };
+  if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) {
+    await recordFailedAttempt("INVALID_QR", fingerprint, now);
+    return { status: "INVALID" };
+  }
   try {
     const result = await getPrisma().$transaction(
       async (tx): Promise<TransactionParticipationResult> => {
@@ -235,6 +250,8 @@ export async function recordQrParticipation(
         };
       },
     );
+    if (result.status === "INVALID")
+      await recordFailedAttempt("INVALID_QR", fingerprint, now);
     if (result.status !== "CREATED") return result;
     return {
       status: "SUCCESS",
@@ -248,7 +265,7 @@ export async function recordQrParticipation(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      const event = await getScanEvent(token, userId);
+      const event = await getScanEvent(token, userId, fingerprint);
       return event
         ? {
             status: "ALREADY",

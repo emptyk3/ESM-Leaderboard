@@ -4,6 +4,7 @@ import { ParticipationForm } from "@/components/participation-form";
 import { formatViennaDateTime } from "@/domain/vienna-date";
 import { getScanEvent } from "@/server/participation-service";
 import { getCurrentUser } from "@/server/session-cookie";
+import { requestFingerprint } from "@/server/rate-limit-service";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default async function ScanPage({
 }) {
   const { token } = await params;
   const user = await getCurrentUser();
-  const event = await getScanEvent(token, user?.id);
+  const event = await getScanEvent(token, user?.id, await requestFingerprint());
   if (!event)
     return (
       <main className="page-shell scan-page">

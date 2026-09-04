@@ -15,6 +15,7 @@ import {
 } from "@/server/session-cookie";
 import { cookies } from "next/headers";
 import { safeScanReturnPath } from "@/domain/participation";
+import { requestFingerprint } from "@/server/rate-limit-service";
 
 export type FormState = {
   status?: "error" | "success";
@@ -57,14 +58,15 @@ export async function loginAction(
   const password = field(formData, "password");
   if (!identifier || !password)
     return { status: "error", message: "Bitte fülle beide Felder aus." };
-  const result = await loginUser(identifier, password);
+  const result = await loginUser(
+    identifier,
+    password,
+    await requestFingerprint(),
+  );
   if (!result.ok) {
     return {
       status: "error",
-      message:
-        result.reason === "BLOCKED"
-          ? "Dieses Konto ist gesperrt."
-          : "Alias/E-Mail-Adresse oder Passwort ist nicht korrekt.",
+      message: "Alias/E-Mail-Adresse oder Passwort ist nicht korrekt.",
     };
   }
   await setSessionCookie(result.token, result.expiresAt);

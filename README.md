@@ -21,6 +21,7 @@ Die Anwendung ist anschließend unter `http://localhost:3000` erreichbar. Regist
 - `DATABASE_URL`: gepoolte PostgreSQL-Verbindung der laufenden Anwendung; bei Neon enthält der Host üblicherweise `-pooler`.
 - `DIRECT_URL`: direkte, ungepoolte PostgreSQL-Verbindung ausschließlich für Prisma CLI und Migrationen.
 - `APP_URL`: optionale kanonische Basisadresse für QR-Links, lokal etwa `http://localhost:3000`. In Vercel wird ohne diesen Wert automatisch die stabile Production-URL verwendet; Produktion erzwingt HTTPS.
+- `RATE_LIMIT_PEPPER`: empfohlenes unabhängiges zufälliges Geheimnis mit mindestens 32 Zeichen für pseudonyme Rate-Limit-Schlüssel. Ohne diesen optionalen Wert dient die bereits geschützte, serverseitige `DATABASE_URL` als sicherer Fallback.
 - `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_ALIAS`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`: Konfiguration für den initialen Hauptadmin.
 
 Echte Werte gehören ausschließlich in `.env` beziehungsweise `.env.local`; beide werden von Git ignoriert.
@@ -164,6 +165,33 @@ UUIDs für Events und Alias-Identitäten. `aliasPublicId` wird als unabhängiger
 Skalar in neue Snapshot-Einträge kopiert und bleibt dadurch bei Claim,
 Aliasänderung oder Kontolöschung stabil, ohne interne Konto- oder Datenbank-IDs
 öffentlich zu machen.
+
+## Audit und Sicherheitsabschluss
+
+Das ausschließlich für den Hauptadmin erreichbare Audit-Protokoll liegt unter
+`/admin/audit`. Es verwendet serverseitige Pagination und Filter und gibt nur
+eine explizite Darstellungs-Whitelist aus; interne Objekt-IDs und freie
+Audit-Metadaten bleiben serverintern.
+
+Fehlgeschlagene Login- und ungültige QR-Versuche werden instanzübergreifend in
+PostgreSQL begrenzt. Ein atomarer Upsert zählt getrennte Zwecke und Zeitfenster
+pro HMAC-pseudonymisiertem Vercel-Verbindungsmerkmal. Außerhalb von Vercel werden
+weitergeleitete Client-Header nicht vertraut. Abgelaufene Zähler werden
+stichprobenartig nach höchstens einem zusätzlichen Aufbewahrungstag entfernt.
+Die Runtime verwendet `DATABASE_URL`, Migrationen weiterhin `DIRECT_URL`.
+
+Globale CSP-, MIME-, Referrer-, Frame- und Permissions-Header ergänzen die
+strengeren `no-store`-/`no-referrer`-Regeln der QR-Routen. Next.js Server Actions
+behalten ihre standardmäßige Origin-/Host-Prüfung; das Sitzungscookie ist
+zusätzlich `HttpOnly`, in Produktion `Secure` und `SameSite=Lax`.
+
+`npm audit` meldet derzeit vier hohe transitive Befunde in `deepmerge-ts` und
+`mysql2`, beide ausschließlich über Primas Konfigurations-/CLI-Werkzeugkette.
+Die Anwendung verwendet PostgreSQL und lädt `mysql2` nicht zur Laufzeit. NPM
+bietet nur einen erzwungenen, inkompatiblen Prisma-Downgrade als automatische
+Korrektur an; deshalb bleiben diese Werkzeugkettenbefunde bis zu einem
+kompatiblen Prisma-Update dokumentiertes Restrisiko. Der separat gemeldete
+`esbuild`-Befund wurde durch das Update auf 0.28.2 behoben.
 
 ## Deployment
 

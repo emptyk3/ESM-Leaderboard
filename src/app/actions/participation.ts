@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { formatViennaDateTime } from "@/domain/vienna-date";
 import { recordQrParticipation } from "@/server/participation-service";
 import { getRequiredUser } from "@/server/session-cookie";
+import { requestFingerprint } from "@/server/rate-limit-service";
 
 export type ParticipationFormState = {
   status?: "success" | "info" | "error";
@@ -23,6 +24,8 @@ export async function confirmParticipationAction(
   const result = await recordQrParticipation(
     user.id,
     typeof raw === "string" ? raw : "",
+    new Date(),
+    await requestFingerprint(),
   );
   if (result.status === "SUCCESS") {
     revalidatePath("/");
@@ -68,9 +71,6 @@ export async function confirmParticipationAction(
     };
   return {
     status: "error",
-    message:
-      result.status === "BLOCKED"
-        ? "Dieses Konto darf keine Teilnahme erfassen."
-        : "Dieser Teilnahme-Link ist ungültig.",
+    message: "Die Teilnahme konnte nicht erfasst werden.",
   };
 }

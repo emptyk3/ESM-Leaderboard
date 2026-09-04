@@ -671,6 +671,44 @@ tbody tr:last-child td {
 .wide-card {
   width: min(100%, 52rem);
 }
+.audit-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.audit-filters label {
+  display: grid;
+  gap: 0.35rem;
+}
+.audit-list {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+}
+.audit-list li {
+  padding: 0.9rem;
+  border: 1px solid #3c4a35;
+  border-radius: 0.5rem;
+}
+.audit-list li > div,
+.audit-pagination {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.audit-list p {
+  margin: 0.45rem 0;
+}
+.audit-list span,
+.audit-list small {
+  color: #b9c3b1;
+}
+.audit-pagination {
+  align-items: center;
+  margin-top: 1.5rem;
+}
 .admin-page {
   align-items: start;
 }
@@ -728,6 +766,13 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 42rem) {
+  .audit-filters {
+    grid-template-columns: 1fr;
+  }
+  .audit-list li > div {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
   .leaderboard-heading {
     align-items: start;
     flex-direction: column;

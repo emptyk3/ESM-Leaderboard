@@ -12,6 +12,11 @@ import {
 } from "@/domain/session";
 import { getPrisma } from "./prisma";
 import { hashPassword, verifyPassword } from "./password";
+import {
+  clearRateLimit,
+  isRateLimited,
+  recordFailedAttempt,
+} from "./rate-limit-service";
 
 export type SafeUser = {
   id: string;
@@ -93,10 +98,13 @@ export async function registerUser(
 export async function loginUser(
   identifier: string,
   password: string,
+  fingerprint: string,
 ): Promise<
   | { ok: true; token: string; expiresAt: Date }
-  | { ok: false; reason: "INVALID" | "BLOCKED" }
+  | { ok: false; reason: "INVALID" }
 > {
+  if (await isRateLimited("LOGIN", fingerprint))
+    return { ok: false, reason: "INVALID" };
   const parsed = parseLoginIdentifier(identifier);
   const prisma = getPrisma();
   const user = await prisma.user.findFirst({
@@ -110,14 +118,17 @@ export async function loginUser(
     user?.passwordHash ?? null,
     password,
   );
-  if (!user || !passwordMatches) return { ok: false, reason: "INVALID" };
-  if (user.isBlocked) return { ok: false, reason: "BLOCKED" };
+  if (!user || !passwordMatches || user.isBlocked) {
+    await recordFailedAttempt("LOGIN", fingerprint);
+    return { ok: false, reason: "INVALID" };
+  }
 
   const token = createSessionToken();
   const expiresAt = sessionExpiry();
   await prisma.session.create({
     data: { userId: user.id, tokenHash: hashSessionToken(token), expiresAt },
   });
+  await clearRateLimit("LOGIN", fingerprint);
   return { ok: true, token, expiresAt };
 }
 
