@@ -26,4 +26,14 @@ describe("Betriebsgrenzen", () => {
     expect(build).toContain("migrate");
     expect(build).toContain("deploy");
   });
+
+  it("führt den Produktions-Bootstrap nur mit vollständiger Konfiguration aus", () => {
+    const build = read("scripts/vercel-build.mjs");
+    expect(build).toContain('"INITIAL_ADMIN_NAME"');
+    expect(build).toContain('"INITIAL_ADMIN_ALIAS"');
+    expect(build).toContain('"INITIAL_ADMIN_EMAIL"');
+    expect(build).toContain('"INITIAL_ADMIN_PASSWORD"');
+    expect(build).toContain('execFileSync("npm", ["run", "admin:bootstrap"]');
+    expect(build).toContain("vollständig oder gar nicht gesetzt");
+  });
 });

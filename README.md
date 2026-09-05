@@ -39,7 +39,9 @@ Nach Migration der Datenbank werden die vier `INITIAL_ADMIN_*`-Werte ausschließ
 npm run admin:bootstrap
 ```
 
-Das Kommando ist idempotent: Existiert bereits ein Hauptadmin, wird weder ein zweiter Admin noch ein weiteres Konto angelegt. Der Admin ist sofort freigegeben. Das Passwort muss mindestens 4 Zeichen lang sein; weitere Komplexitätsanforderungen bestehen nicht. Passwörter werden nicht ausgegeben und ausschließlich als Argon2id-Hash gespeichert. Nach erfolgreicher Einrichtung sollte `INITIAL_ADMIN_PASSWORD` aus der lokalen Datei beziehungsweise Laufzeitkonfiguration entfernt werden.
+Das Kommando ist idempotent: Existiert bereits ein Hauptadmin, wird weder ein zweiter Admin noch ein weiteres Konto angelegt. Der Admin ist sofort freigegeben. Das Passwort muss mindestens 4 Zeichen lang sein; weitere Komplexitätsanforderungen bestehen nicht. Passwörter werden nicht ausgegeben und ausschließlich als Argon2id-Hash gespeichert.
+
+Im Vercel-Production-Build wird der Bootstrap nach den Migrationen automatisch ausgeführt, sobald alle vier `INITIAL_ADMIN_*`-Variablen gesetzt sind. Eine nur teilweise gesetzte Konfiguration bricht den Build ab. Nach der erfolgreichen Erstanlage können und sollen alle vier Bootstrap-Variablen gemeinsam aus Vercel entfernt werden; das bestehende Hauptadmin-Konto bleibt erhalten und spätere Deployments überspringen den Bootstrap.
 
 ## Authentifizierung und Sitzungen
 
