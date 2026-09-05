@@ -140,6 +140,9 @@ a {
 .nav-disclosure {
   display: none;
 }
+.site-nav {
+  min-width: 0;
+}
 .nav-links,
 .admin-nav-group {
   display: flex;
@@ -158,6 +161,8 @@ a {
   color: var(--cream);
   font-weight: 700;
   text-decoration: none;
+  overflow-wrap: normal;
+  white-space: nowrap;
   cursor: pointer;
 }
 .nav-links a:hover,
@@ -774,7 +779,7 @@ body:has(.qr-presentation) > .site-header {
   margin-top: var(--s4);
 }
 
-@media (max-width: 68rem) {
+@media (max-width: 76rem) {
   .brand span {
     display: none;
   }
@@ -787,7 +792,7 @@ body:has(.qr-presentation) > .site-header {
     padding-inline: var(--s2);
   }
 }
-@media (max-width: 68rem) {
+@media (max-width: 76rem) {
   .nav-disclosure {
     display: block;
     position: relative;
@@ -804,6 +809,7 @@ body:has(.qr-presentation) > .site-header {
     border-radius: var(--r-sm);
     cursor: pointer;
     font-weight: 800;
+    white-space: nowrap;
     list-style: none;
   }
   .nav-disclosure > summary::-webkit-details-marker {
@@ -816,7 +822,7 @@ body:has(.qr-presentation) > .site-header {
   .nav-disclosure[open] > summary::before {
     content: "×";
   }
-  .nav-links {
+  .nav-disclosure .nav-links {
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
@@ -832,8 +838,8 @@ body:has(.qr-presentation) > .site-header {
     background: var(--charcoal);
     box-shadow: var(--shadow);
   }
-  .nav-links a,
-  .link-button {
+  .nav-disclosure .nav-links a,
+  .nav-disclosure .link-button {
     width: 100%;
     min-height: 3rem;
   }
