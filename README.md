@@ -130,6 +130,11 @@ werden innerhalb der transaktionalen Erfassung erneut geprüft. Der eindeutige
 Constraint auf Event und Benutzer verhindert doppelte Punkte auch bei parallelen
 Scans; Live-Punkte bleiben abgeleitet.
 
+Das gültige Zeitfenster ist halboffen: `Beginn ≤ Serverzeit < Ende`. Vor Beginn
+fordert die Scanseite zum späteren erneuten Versuch auf; ab dem exakten Ende
+weist sie darauf hin, dass das Event vorbei ist. Außerhalb des Fensters wird
+keine Bestätigungsaktion angeboten.
+
 Eine verteilte Begrenzung ungültiger Tokenversuche ist ohne gemeinsamen
 Rate-Limit-Speicher nicht zuverlässig umsetzbar und wurde daher nicht als
 scheinbarer In-Memory-Schutz eingebaut. Die hochentropischen Token, generischen

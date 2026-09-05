@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   decideParticipation,
+  PARTICIPATION_AFTER_MESSAGE,
+  PARTICIPATION_BEFORE_MESSAGE,
   participationWindow,
   qrApplicationOrigin,
   qrParticipationUrl,
@@ -12,15 +14,44 @@ describe("Teilnahmezeitraum", () => {
     startsAt: new Date("2026-06-10T16:00:00.000Z"),
     endsAt: new Date("2026-06-10T20:00:00.000Z"),
   };
-  it("ist vor Beginn geschlossen, an beiden Grenzen offen und danach geschlossen", () => {
+  it("verwendet exakt das halboffene Fenster Beginn ≤ jetzt < Ende", () => {
     expect(
       participationWindow(event, new Date("2026-06-10T15:59:59.999Z")),
     ).toBe("BEFORE");
     expect(participationWindow(event, event.startsAt)).toBe("OPEN");
-    expect(participationWindow(event, event.endsAt)).toBe("OPEN");
+    expect(
+      participationWindow(event, new Date("2026-06-10T19:59:59.999Z")),
+    ).toBe("OPEN");
+    expect(participationWindow(event, event.endsAt)).toBe("AFTER");
     expect(
       participationWindow(event, new Date("2026-06-10T20:00:00.001Z")),
     ).toBe("AFTER");
+  });
+
+  it("liefert die verbindlichen sichtbaren Meldungen exakt", () => {
+    expect(PARTICIPATION_BEFORE_MESSAGE).toBe(
+      "Das Event hat noch nicht begonnen. Versuche es später erneut.",
+    );
+    expect(PARTICIPATION_AFTER_MESSAGE).toBe(
+      "Tut uns leid, das Event ist leider vorbei.",
+    );
+  });
+
+  it("entscheidet an Wiener Sommer- und Winterzeitgrenzen anhand eindeutiger Serverinstants", () => {
+    const summer = {
+      startsAt: new Date("2026-03-29T01:00:00+01:00"),
+      endsAt: new Date("2026-03-29T03:00:00+02:00"),
+    };
+    const winter = {
+      startsAt: new Date("2026-10-25T02:00:00+02:00"),
+      endsAt: new Date("2026-10-25T02:00:00+01:00"),
+    };
+    expect(participationWindow(summer, summer.startsAt)).toBe("OPEN");
+    expect(participationWindow(summer, summer.endsAt)).toBe("AFTER");
+    expect(
+      participationWindow(winter, new Date("2026-10-25T02:30:00+02:00")),
+    ).toBe("OPEN");
+    expect(participationWindow(winter, winter.endsAt)).toBe("AFTER");
   });
 
   it("erlaubt freigegebene und noch nicht freigegebene aktive Konten", () => {
@@ -43,7 +74,7 @@ describe("Teilnahmezeitraum", () => {
     [{ isOrganizer: true }, "ORGANIZER"],
     [{ alreadyParticipating: true }, "ALREADY"],
     [{ now: new Date("2026-06-10T15:59:59.999Z") }, "BEFORE"],
-    [{ now: new Date("2026-06-10T20:00:00.001Z") }, "AFTER"],
+    [{ now: new Date("2026-06-10T20:00:00.000Z") }, "AFTER"],
     [{ seasonIsActive: false }, "AFTER"],
     [{ seasonIsArchived: true }, "AFTER"],
   ])(

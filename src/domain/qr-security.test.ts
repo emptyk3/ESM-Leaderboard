@@ -33,6 +33,20 @@ describe("QR- und Scan-Sicherheitsgrenzen", () => {
     expect(scanPage).not.toContain("recordQrParticipation");
     expect(action).toContain("recordQrParticipation");
     expect(action).toContain("getRequiredUser");
+    expect(scanPage).toContain('event.window === "BEFORE"');
+    expect(scanPage).toContain('event.window === "AFTER"');
+    expect(scanPage).toContain("<ParticipationForm token={token} />");
+  });
+
+  it("prüft das Zeitfenster in der Transaktion erneut mit Serverzeit", () => {
+    const service = read("src/server/participation-service.ts");
+    const transaction = service.slice(
+      service.indexOf("getPrisma().$transaction"),
+    );
+    expect(transaction).toContain("fixedNow ?? new Date()");
+    expect(transaction.indexOf("fixedNow ?? new Date()")).toBeLessThan(
+      transaction.indexOf("eventParticipation.create"),
+    );
   });
 
   it("schützt QR-Seite und PNG serverseitig und verhindert Caching", () => {

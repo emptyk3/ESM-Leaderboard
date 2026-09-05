@@ -169,13 +169,17 @@ type TransactionParticipationResult =
 export async function recordQrParticipation(
   userId: string,
   token: string,
-  now = new Date(),
   fingerprint = "local-development",
+  fixedNow?: Date,
 ): Promise<ParticipationResult> {
   if (await isRateLimited("INVALID_QR", fingerprint))
     return { status: "INVALID" };
   if (!/^[A-Za-z0-9_-]{32,128}$/.test(token)) {
-    await recordFailedAttempt("INVALID_QR", fingerprint, now);
+    await recordFailedAttempt(
+      "INVALID_QR",
+      fingerprint,
+      fixedNow ?? new Date(),
+    );
     return { status: "INVALID" };
   }
   try {
@@ -212,6 +216,9 @@ export async function recordQrParticipation(
           },
         });
         if (!event) return { status: "INVALID" };
+        // Deliberately read trusted server time immediately before the
+        // transactional decision; the GET state is never trusted here.
+        const now = fixedNow ?? new Date();
         const decision = decideParticipation({
           isBlocked: user.isBlocked,
           isOrganizer: event.organizers.length > 0,
@@ -251,7 +258,11 @@ export async function recordQrParticipation(
       },
     );
     if (result.status === "INVALID")
-      await recordFailedAttempt("INVALID_QR", fingerprint, now);
+      await recordFailedAttempt(
+        "INVALID_QR",
+        fingerprint,
+        fixedNow ?? new Date(),
+      );
     if (result.status !== "CREATED") return result;
     return {
       status: "SUCCESS",

@@ -112,7 +112,7 @@ Regeln:
 
 - Der QR-Code ist genau einem Event zugeordnet.
 - Pro Event existiert genau ein stabiler QR-Code. Er kann beliebig oft erneut geöffnet, dargestellt, heruntergeladen und gedruckt werden; es werden keine parallelen oder wechselnden Codes für dasselbe Event erzeugt.
-- Er ist nur zwischen Beginn und Ende des Events zur Teilnahmeerfassung gültig.
+- Er ist im halboffenen Zeitfenster `Beginn ≤ Serverzeit < Ende` zur Teilnahmeerfassung gültig.
 - Außerhalb des Eventzeitraums wird keine Teilnahme angenommen.
 - Standortprüfung und ständig wechselnde QR-Codes sind für die erste Version nicht vorgesehen.
 - Der Admin kann unberechtigte oder fehlerhafte Teilnahmen nachträglich entfernen.

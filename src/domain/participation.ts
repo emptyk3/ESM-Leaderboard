@@ -1,11 +1,16 @@
 export type ParticipationWindow = "BEFORE" | "OPEN" | "AFTER";
 
+export const PARTICIPATION_BEFORE_MESSAGE =
+  "Das Event hat noch nicht begonnen. Versuche es später erneut.";
+export const PARTICIPATION_AFTER_MESSAGE =
+  "Tut uns leid, das Event ist leider vorbei.";
+
 export function participationWindow(
   event: { startsAt: Date; endsAt: Date },
   now = new Date(),
 ): ParticipationWindow {
   if (now < event.startsAt) return "BEFORE";
-  if (now > event.endsAt) return "AFTER";
+  if (now >= event.endsAt) return "AFTER";
   return "OPEN";
 }
 
@@ -23,12 +28,12 @@ export function decideParticipation(input: {
   now: Date;
 }): ParticipationDecision {
   if (input.isBlocked) return "BLOCKED";
-  if (input.isOrganizer) return "ORGANIZER";
-  if (input.alreadyParticipating) return "ALREADY";
   const window = participationWindow(input, input.now);
   if (window === "BEFORE") return "BEFORE";
   if (window === "AFTER" || !input.seasonIsActive || input.seasonIsArchived)
     return "AFTER";
+  if (input.isOrganizer) return "ORGANIZER";
+  if (input.alreadyParticipating) return "ALREADY";
   return "ALLOW";
 }
 

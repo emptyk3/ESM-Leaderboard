@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { formatViennaDateTime } from "@/domain/vienna-date";
+import {
+  PARTICIPATION_AFTER_MESSAGE,
+  PARTICIPATION_BEFORE_MESSAGE,
+} from "@/domain/participation";
 import { recordQrParticipation } from "@/server/participation-service";
 import { getRequiredUser } from "@/server/session-cookie";
 import { requestFingerprint } from "@/server/rate-limit-service";
@@ -24,7 +27,6 @@ export async function confirmParticipationAction(
   const result = await recordQrParticipation(
     user.id,
     typeof raw === "string" ? raw : "",
-    new Date(),
     await requestFingerprint(),
   );
   if (result.status === "SUCCESS") {
@@ -54,13 +56,13 @@ export async function confirmParticipationAction(
     return {
       status: "info",
       title: result.title,
-      message: `Die Teilnahme ist ab ${formatViennaDateTime(result.startsAt)} möglich.`,
+      message: PARTICIPATION_BEFORE_MESSAGE,
     };
   if (result.status === "AFTER")
     return {
       status: "info",
       title: result.title,
-      message: "Die Teilnahmefrist für dieses Event ist beendet.",
+      message: PARTICIPATION_AFTER_MESSAGE,
     };
   if (result.status === "ORGANIZER")
     return {

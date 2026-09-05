@@ -5,6 +5,10 @@ import { formatViennaDateTime } from "@/domain/vienna-date";
 import { getScanEvent } from "@/server/participation-service";
 import { getCurrentUser } from "@/server/session-cookie";
 import { requestFingerprint } from "@/server/rate-limit-service";
+import {
+  PARTICIPATION_AFTER_MESSAGE,
+  PARTICIPATION_BEFORE_MESSAGE,
+} from "@/domain/participation";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -30,7 +34,7 @@ export default async function ScanPage({
         </section>
       </main>
     );
-  if (!user)
+  if (!user && event.window === "OPEN")
     redirect(
       `/anmelden?returnTo=${encodeURIComponent(`/teilnehmen/${token}`)}`,
     );
@@ -47,23 +51,20 @@ export default async function ScanPage({
         <p>
           <strong>{event.participantPoints} Punkte</strong> für deine Teilnahme
         </p>
-        {event.alreadyParticipating ? (
+        {event.window === "BEFORE" ? (
+          <div className="scan-result info" role="status">
+            <p>{PARTICIPATION_BEFORE_MESSAGE}</p>
+          </div>
+        ) : event.window === "AFTER" ? (
+          <div className="scan-result info" role="status">
+            <p>{PARTICIPATION_AFTER_MESSAGE}</p>
+          </div>
+        ) : event.alreadyParticipating ? (
           <div className="scan-result info" role="status">
             <p>
               Teilnahme bereits erfasst. Es werden keine weiteren Punkte
               vergeben.
             </p>
-          </div>
-        ) : event.window === "BEFORE" ? (
-          <div className="scan-result info">
-            <p>
-              Die Teilnahme ist ab {formatViennaDateTime(event.startsAt)}
-              möglich.
-            </p>
-          </div>
-        ) : event.window === "AFTER" ? (
-          <div className="scan-result info">
-            <p>Die Teilnahmefrist für dieses Event ist beendet.</p>
           </div>
         ) : (
           <>
