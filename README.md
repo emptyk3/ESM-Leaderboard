@@ -204,7 +204,7 @@ Das UI verwendet ein kleines CSS-Designsystem in `src/app/globals.css` mit den
 Vereinsfarben, konsistenten Abständen, Radien, Fokus-, Status- und
 Aktionszuständen. Das hellere Oberflächen-Grau und die aufgehellte
 Sekundärschrift sichern auf dunklem Grund mindestens AA-taugliche Kontraste.
-Die Hauptnavigation wird unter 832 Pixeln zu einem tastaturbedienbaren Menü;
+Die Hauptnavigation wird unter 1088 Pixeln zu einem tastaturbedienbaren Menü;
 Tabellen und Aktionsbereiche bleiben auf schmalen Displays scrollbar oder
 wechseln in eine einspaltige Darstellung. Die QR-Präsentation blendet die
 Seitennavigation aus. Das Drucklayout enthält Logo, Eventname, Zeitraum,
