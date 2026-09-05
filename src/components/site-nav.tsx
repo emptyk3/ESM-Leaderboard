@@ -35,6 +35,7 @@ export function SiteNav({ viewer }: { viewer: Viewer }) {
             <span className="admin-nav-group" aria-label="Administration">
               <NavLink href="/admin/events">Eventverwaltung</NavLink>
               <NavLink href="/admin/mitglieder">Mitglieder</NavLink>
+              <NavLink href="/admin/punkte">Manuelle Punkte</NavLink>
               <NavLink href="/admin/saisonen">Saisonen</NavLink>
               <NavLink href="/admin/audit">Audit</NavLink>
             </span>

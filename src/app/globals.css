@@ -361,6 +361,7 @@ tbody tr[data-rank="3"] {
 }
 .public-event-group li a,
 .profile-events li a,
+.profile-events li > div,
 .managed-event-list li,
 .running-event-list li {
   display: grid;
@@ -454,6 +455,9 @@ tbody tr[data-rank="3"] {
 }
 .profile-events li a {
   grid-template-columns: 1.5fr 1fr 1fr;
+}
+.profile-events li > div {
+  grid-template-columns: auto minmax(9rem, 0.7fr) minmax(14rem, 2fr);
 }
 
 .auth-form {
@@ -856,6 +860,7 @@ body:has(.qr-presentation) > .site-header {
   }
   .public-event-group li a,
   .profile-events li a,
+  .profile-events li > div,
   .managed-event-list li,
   .running-event-list li {
     grid-template-columns: 1fr;

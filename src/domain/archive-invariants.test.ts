@@ -75,4 +75,16 @@ describe("Archiv- und Saisoninvarianten", () => {
     );
     expect(migration).not.toContain('FOREIGN KEY ("aliasPublicId")');
   });
+
+  it("bewahrt manuelle Buchungen getrennt und unveränderlich im Archiv", () => {
+    const migration = readFileSync(
+      "prisma/migrations/20260908000000_manual_points/migration.sql",
+      "utf8",
+    );
+    expect(migration).toContain('CREATE TABLE "SeasonSnapshotManualPoint"');
+    expect(migration).toContain("BEFORE UPDATE OR DELETE");
+    expect(migration).not.toContain(
+      'FOREIGN KEY ("aliasPublicId") REFERENCES "AliasIdentity"',
+    );
+  });
 });

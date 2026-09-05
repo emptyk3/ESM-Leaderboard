@@ -81,6 +81,11 @@ export async function getPublicProfile(publicId: string) {
           event: { select: { publicId: true, title: true, startsAt: true } },
         },
       },
+      manualPointEntries: {
+        where: { season: { isActive: true, archivedAt: null } },
+        select: { id: true, points: true, reason: true, bookedAt: true },
+        orderBy: [{ bookedAt: "desc" }, { id: "desc" }],
+      },
     },
   });
   if (!identity) return null;
@@ -114,6 +119,11 @@ export async function getPublicProfile(publicId: string) {
     events: [...roles.values()].sort(
       (a, b) => b.startsAt.getTime() - a.startsAt.getTime(),
     ),
+    manualPoints: identity.manualPointEntries.map((entry) => ({
+      points: entry.points,
+      reason: entry.reason,
+      bookedAt: entry.bookedAt,
+    })),
   };
 }
 
@@ -145,7 +155,7 @@ export async function getPublicArchivedProfile(
 ) {
   if (!/^[0-9a-f-]{36}$/i.test(publicId)) return null;
   if (await isMainAdminProfile(publicId)) return null;
-  return getPrisma().seasonSnapshotEntry.findFirst({
+  const entry = await getPrisma().seasonSnapshotEntry.findFirst({
     where: { aliasPublicId: publicId, snapshot: { seasonId } },
     select: {
       alias: true,
@@ -154,4 +164,14 @@ export async function getPublicArchivedProfile(
       snapshot: { select: { seasonName: true, startsAt: true, endsAt: true } },
     },
   });
+  if (!entry) return null;
+  const manualPoints = await getPrisma().seasonSnapshotManualPoint.findMany({
+    where: {
+      aliasPublicId: publicId,
+      snapshot: { seasonId },
+    },
+    select: { points: true, reason: true, bookedAt: true },
+    orderBy: [{ bookedAt: "desc" }, { id: "desc" }],
+  });
+  return { ...entry, manualPoints };
 }

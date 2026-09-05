@@ -15,6 +15,9 @@ export const AUDIT_ACTION_LABELS = {
   SEASON_ARCHIVED: "Saison abgeschlossen",
   ORGANIZER_ALIAS_RESERVED: "Veranstalter-Alias reserviert",
   ORGANIZER_ALIAS_CLAIMED: "Veranstalter-Alias übernommen",
+  MANUAL_POINTS_CREATED: "Manuelle Punkte gebucht",
+  MANUAL_POINTS_UPDATED: "Manuelle Punkte geändert",
+  MANUAL_POINTS_DELETED: "Manuelle Punkte gelöscht",
 } as const;
 
 export type AuditActionValue = keyof typeof AUDIT_ACTION_LABELS;
@@ -25,6 +28,7 @@ export const AUDIT_SUBJECT_LABELS: Record<string, string> = {
   Season: "Saison",
   EventParticipation: "Teilnahme",
   AliasIdentity: "Alias",
+  ManualPointEntry: "Manuelle Punktebuchung",
 };
 
 export function auditDescription(action: AuditActionValue): string {
@@ -53,6 +57,9 @@ export function auditDescription(action: AuditActionValue): string {
       "Ein öffentlicher Veranstalter-Alias wurde reserviert.",
     ORGANIZER_ALIAS_CLAIMED:
       "Ein reservierter Alias wurde einem freigegebenen Konto zugeordnet.",
+    MANUAL_POINTS_CREATED: "Eine manuelle Punktebuchung wurde angelegt.",
+    MANUAL_POINTS_UPDATED: "Eine manuelle Punktebuchung wurde geändert.",
+    MANUAL_POINTS_DELETED: "Eine manuelle Punktebuchung wurde gelöscht.",
   };
   return descriptions[action];
 }

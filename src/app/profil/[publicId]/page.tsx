@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatViennaDate, formatViennaDateTime } from "@/domain/vienna-date";
+import { formatSignedPoints } from "@/domain/manual-points";
 import {
   getPublicArchivedProfile,
   getPublicProfile,
@@ -27,13 +28,17 @@ export default async function ProfilePage({
     getPublicProfile(publicId),
     getPublicProfileArchives(publicId),
   ]);
-  const archived = selectedSeason
-    ? await getPublicArchivedProfile(publicId, selectedSeason)
+  const archiveSeasonId =
+    selectedSeason ?? (!active ? archives[0]?.snapshot.seasonId : undefined);
+  const archived = archiveSeasonId
+    ? await getPublicArchivedProfile(publicId, archiveSeasonId)
     : null;
   if (selectedSeason && !archived) notFound();
   if (!active && !archived && !archives.length) notFound();
   const shownArchive = archived ?? (!active ? archives[0] : null);
   const alias = shownArchive?.alias ?? active!.alias;
+  const manualPoints =
+    archived?.manualPoints ?? (!shownArchive ? active!.manualPoints : []);
   return (
     <main className="public-page">
       <Link href="/">← Zum Leaderboard</Link>
@@ -115,6 +120,24 @@ export default async function ProfilePage({
           )}
         </section>
       )}
+      <section>
+        <h2>Manuelle Punkte</h2>
+        {manualPoints.length ? (
+          <ul className="profile-events manual-point-list">
+            {manualPoints.map((entry, index) => (
+              <li key={`${entry.bookedAt.toISOString()}-${index}`}>
+                <div>
+                  <strong>{formatSignedPoints(entry.points)} Punkte</strong>
+                  <span>{formatViennaDateTime(entry.bookedAt)}</span>
+                  <span>{entry.reason}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>In dieser Saison gibt es keine manuellen Punktebuchungen.</p>
+        )}
+      </section>
     </main>
   );
 }

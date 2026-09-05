@@ -49,6 +49,14 @@ Anmeldung ist über ein gemeinsames Alias-/E-Mail-Feld möglich. Neue Mitglieder
 
 ## Datenmodell
 
+Manuelle Punkte sind eigenständige `ManualPointEntry`-Buchungen der aktiven
+Saison. Zulässig sind ganze Werte von −100.000 bis +100.000 außer `0`; jede
+Buchung benötigt eine öffentliche, auf 500 Zeichen begrenzte Begründung.
+Leaderboard und öffentliche Profile leiten ihre Werte aus Event-,
+Veranstalter- und manuellen Punkten ab. Beim Saisonabschluss werden Gesamtstand
+und öffentliche Buchungsdetails unveränderlich archiviert. Eine eindeutige
+Übermittlungs-UUID verhindert doppelte Anlage.
+
 Normalisierte Aliasse leben zentral in `AliasIdentity`. Dadurch teilen Benutzer und reservierte Veranstalter-Aliasse denselben eindeutigen Namensraum, und ein reservierter Alias kann später ohne Umbau kontrolliert einem Konto zugeordnet werden. Punkte der laufenden Saison werden aus Events, Veranstalterzuordnungen und Teilnahmen berechnet; dadurch wirken Punktänderungen ohne redundante Punktdatensätze.
 
 Beim Saisonabschluss werden Anzeigealias, Rang, Punkte und Eventdaten in eigene Snapshot-Tabellen kopiert. Datenbank-Trigger verhindern danach Änderungen und Löschungen dieser fachlichen Inhalte. Eine Benutzerlöschung entfernt per Kaskade Sitzungen und Live-Teilnahmen. Der spätere Löschdienst entfernt in derselben Transaktion außerdem dessen nicht archivierte Veranstalterzuordnungen und die Aliasidentität. Optionale Verknüpfungen aus Snapshots werden dabei auf `NULL` gesetzt, die eingefrorenen historischen Anzeige- und Punktwerte bleiben jedoch unverändert. Ein Archiv ist damit keine fortbestehende personenbezogene Live-Punktebuchung, sondern ein unabhängiges historisches Dokument.

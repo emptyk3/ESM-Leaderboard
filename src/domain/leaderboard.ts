@@ -11,6 +11,7 @@ export type LeaderboardMember = {
   isBlocked: boolean;
   participations: PointCredit[];
   organizerCredits: PointCredit[];
+  manualCredits?: number[];
 };
 
 export type PublicLeaderboardEntry = {
@@ -52,7 +53,10 @@ export function calculateLeaderboard(
         userId: member.userId,
         alias: member.alias,
         normalizedAlias: member.normalizedAlias,
-        points: participantPoints + organizerPoints,
+        points:
+          participantPoints +
+          organizerPoints +
+          (member.manualCredits ?? []).reduce((sum, points) => sum + points, 0),
       };
     })
     .sort(

@@ -8,6 +8,12 @@ Produktion geprüft. **Manuelle Abnahme** benötigt Rollen oder veränderliche
 Testdaten und wurde nicht gegen Produktion simuliert. **Go-live-Restpunkt** ist
 eine organisatorische Entscheidung außerhalb des Codes.
 
+Manuelle Punkte: Nur der Hauptadmin verwaltet positive und negative Buchungen
+für freigegebene Mitglieder (einschließlich gesperrter) und reservierte
+Aliasse. Automatisiert geprüft sind Wertebereich, Pflichtbegründung,
+Gesamtberechnung, Zugriffsschutz, Idempotenz, Public-DTO und unveränderlicher
+Saison-Snapshot. Der Produktions-Smoke-Test verändert keine Buchungsdaten.
+
 | Bereich                    | Anforderung                                                                                              | Nachweis                                                                                              | Status                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Öffentlichkeit             | Leaderboard zeigt nur Alias, Rang und Punkte; Gleichstände und alphabetische Reihenfolge                 | `leaderboard.test.ts`, `public-data-invariants.test.ts`, Produktionsaufruf `/`                        | Verifiziert                                                                         |

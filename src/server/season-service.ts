@@ -66,6 +66,10 @@ async function loadLeaderboardIdentities(
           event: { select: { organizerPoints: true } },
         },
       },
+      manualPointEntries: {
+        where: { seasonId },
+        select: { points: true },
+      },
       user: {
         select: {
           id: true,
@@ -100,6 +104,7 @@ async function loadLeaderboardIdentities(
       eventId: item.eventId,
       points: item.event.organizerPoints ?? 0,
     })),
+    manualCredits: alias.manualPointEntries.map((item) => item.points),
   }));
 }
 
@@ -282,6 +287,7 @@ export async function closeSeasonAndOpenNext(
           where: { id: activeSeasonId, isActive: true, archivedAt: null },
           include: {
             events: { include: { organizers: { include: { alias: true } } } },
+            manualPointEntries: { include: { alias: true } },
           },
         });
         if (!active || !isExpectedActiveSeason(active, activeSeasonId))
@@ -333,6 +339,16 @@ export async function closeSeasonAndOpenNext(
                   aliasIdentityId: organizer.aliasId,
                 })),
               ),
+            },
+            manualPointEntries: {
+              create: active.manualPointEntries.map((entry) => ({
+                sourceEntryId: entry.id,
+                aliasPublicId: entry.alias.publicId,
+                alias: entry.alias.displayAlias,
+                points: entry.points,
+                reason: entry.reason,
+                bookedAt: entry.bookedAt,
+              })),
             },
           },
         });
