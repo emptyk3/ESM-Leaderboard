@@ -783,7 +783,7 @@ body:has(.qr-presentation) > .site-header {
     padding-inline: var(--s2);
   }
 }
-@media (max-width: 52rem) {
+@media (max-width: 68rem) {
   .nav-disclosure {
     display: block;
     position: relative;
