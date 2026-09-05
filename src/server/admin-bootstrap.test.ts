@@ -8,7 +8,7 @@ const validConfig = {
   name: "Hauptadmin",
   alias: "Admin_1",
   email: "admin@example.at",
-  password: "sicher-genug-123",
+  password: "1234",
 };
 
 describe("Hauptadmin-Bootstrap", () => {
@@ -25,30 +25,37 @@ describe("Hauptadmin-Bootstrap", () => {
     };
     const hash = vi.fn(async () => "argon2-hash");
     await expect(
-      bootstrapMainAdmin(validConfig, repository, hash, false),
+      bootstrapMainAdmin(validConfig, repository, hash),
     ).resolves.toBe("created");
     await expect(
-      bootstrapMainAdmin(validConfig, repository, hash, false),
+      bootstrapMainAdmin(validConfig, repository, hash),
     ).resolves.toBe("already-exists");
     expect(creations).toBe(1);
     expect(hash).toHaveBeenCalledTimes(1);
   });
 
-  it("bricht bei unsicherer Produktionskonfiguration vor dem Hashen ab", async () => {
+  it("lehnt drei Zeichen auch in Produktion vor dem Hashen ab", async () => {
     const repository: AdminBootstrapRepository = {
       hasMainAdmin: async () => false,
       createMainAdmin: async () => "created",
     };
     const hash = vi.fn(async () => "hash");
     await expect(
-      bootstrapMainAdmin(
-        { ...validConfig, password: "1234567890" },
-        repository,
-        hash,
-        true,
-      ),
-    ).rejects.toThrow(/Produktion/);
+      bootstrapMainAdmin({ ...validConfig, password: "123" }, repository, hash),
+    ).rejects.toThrow(/mindestens 4 Zeichen/);
     expect(hash).not.toHaveBeenCalled();
+  });
+
+  it("akzeptiert ein einfaches Passwort mit vier Zeichen in Produktion unverändert", async () => {
+    const repository: AdminBootstrapRepository = {
+      hasMainAdmin: async () => false,
+      createMainAdmin: async () => "created",
+    };
+    const hash = vi.fn(async () => "hash");
+    await expect(
+      bootstrapMainAdmin(validConfig, repository, hash),
+    ).resolves.toBe("created");
+    expect(hash).toHaveBeenCalledWith("1234");
   });
 
   it("behandelt einen konkurrierend angelegten Singleton als Erfolg", async () => {
@@ -57,7 +64,7 @@ describe("Hauptadmin-Bootstrap", () => {
       createMainAdmin: async () => "already-exists",
     };
     await expect(
-      bootstrapMainAdmin(validConfig, repository, async () => "hash", false),
+      bootstrapMainAdmin(validConfig, repository, async () => "hash"),
     ).resolves.toBe("already-exists");
   });
 });

@@ -9,8 +9,14 @@ import {
   updateMemberAction,
   type AdminFormState,
 } from "@/app/actions/members";
+import { MIN_PASSWORD_LENGTH, validatePassword } from "@/domain/password";
 
 const initial: AdminFormState = {};
+function validateNewPasswordInput(event: React.FormEvent<HTMLInputElement>) {
+  event.currentTarget.setCustomValidity(
+    validatePassword(event.currentTarget.value) ?? "",
+  );
+}
 function Status({ state }: { state: AdminFormState }) {
   return state.message ? (
     <p role="status" className={`form-message ${state.status ?? ""}`}>
@@ -167,12 +173,14 @@ export function MemberSecurityForms({
           <input
             name="password"
             type="password"
-            minLength={10}
-            maxLength={256}
+            minLength={MIN_PASSWORD_LENGTH}
+            onInput={validateNewPasswordInput}
             autoComplete="new-password"
             required
+            aria-describedby="reset-password-hint"
           />
         </label>
+        <small id="reset-password-hint">Mindestens 4 Zeichen.</small>
         <label className="confirm-row">
           <input
             type="checkbox"

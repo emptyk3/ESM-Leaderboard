@@ -3,8 +3,8 @@ import { Prisma } from "../../generated/prisma/client";
 import {
   validateMemberUpdate,
   type MemberUpdateInput,
-} from "@/domain/member-management";
-import { validatePassword } from "@/domain/password";
+} from "../domain/member-management";
+import { validatePassword } from "../domain/password";
 import { getPrisma } from "./prisma";
 import { hashPassword } from "./password";
 

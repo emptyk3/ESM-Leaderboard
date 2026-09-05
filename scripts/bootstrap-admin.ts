@@ -86,12 +86,7 @@ async function main() {
   };
 
   try {
-    const result = await bootstrapMainAdmin(
-      config,
-      repository,
-      hashPassword,
-      process.env.NODE_ENV === "production",
-    );
+    const result = await bootstrapMainAdmin(config, repository, hashPassword);
     console.log(
       result === "created"
         ? "Hauptadmin wurde eingerichtet."

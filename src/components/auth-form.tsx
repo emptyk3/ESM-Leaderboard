@@ -8,8 +8,15 @@ import {
   updateAliasAction,
   type FormState,
 } from "@/app/actions/auth";
+import { MIN_PASSWORD_LENGTH, validatePassword } from "@/domain/password";
 
 const initialState: FormState = {};
+
+function validateNewPasswordInput(event: React.FormEvent<HTMLInputElement>) {
+  event.currentTarget.setCustomValidity(
+    validatePassword(event.currentTarget.value) ?? "",
+  );
+}
 
 function Message({ state }: { state: FormState }) {
   if (!state.message) return null;
@@ -81,12 +88,12 @@ export function RegistrationForm() {
         type="password"
         autoComplete="new-password"
         required
-        minLength={10}
-        maxLength={256}
+        minLength={MIN_PASSWORD_LENGTH}
+        onInput={validateNewPasswordInput}
         aria-describedby="password-hint password-error"
         aria-invalid={Boolean(state.fieldErrors?.password)}
       />
-      <small id="password-hint">Mindestens 10 Zeichen.</small>
+      <small id="password-hint">Mindestens 4 Zeichen.</small>
       <span id="password-error">
         <ErrorText value={state.fieldErrors?.password} />
       </span>

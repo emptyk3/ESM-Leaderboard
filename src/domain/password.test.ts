@@ -1,18 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { validatePassword, validateProductionAdminPassword } from "./password";
+import { passwordCharacterCount, validatePassword } from "./password";
 
 describe("Passwortregeln", () => {
-  it("akzeptiert die nachvollziehbare Mindestlänge", () => {
-    expect(validatePassword("1234567890")).toBeNull();
+  it("lehnt drei Zeichen ab und akzeptiert genau vier Zeichen", () => {
+    expect(validatePassword("123")).not.toBeNull();
+    expect(validatePassword("1234")).toBeNull();
   });
-  it("weist zu kurze und übermäßig lange Eingaben zurück", () => {
-    expect(validatePassword("123456789")).not.toBeNull();
+
+  it("verlangt keine Zeichenklassen oder Komplexität", () => {
+    expect(validatePassword("aaaa")).toBeNull();
+    expect(validatePassword("passwort")).toBeNull();
+    expect(validatePassword("    ")).toBeNull();
+  });
+
+  it("zählt sichtbare Unicode-Zeichen statt UTF-16-Codeeinheiten", () => {
+    expect(passwordCharacterCount("😀😀😀")).toBe(3);
+    expect(validatePassword("😀😀😀")).not.toBeNull();
+    expect(validatePassword("😀😀😀😀")).toBeNull();
+    expect(passwordCharacterCount("a\u0308a\u0308a\u0308")).toBe(3);
+    expect(validatePassword("a\u0308a\u0308a\u0308")).not.toBeNull();
+  });
+
+  it("weist übermäßig lange Eingaben zurück", () => {
     expect(validatePassword("x".repeat(257))).not.toBeNull();
-  });
-  it("fordert für den Produktionsadmin eine stärkere Konfiguration", () => {
-    expect(
-      validateProductionAdminPassword("administrator-123456"),
-    ).not.toBeNull();
-    expect(validateProductionAdminPassword("K5!vQ2-zL9#rT7")).toBeNull();
   });
 });

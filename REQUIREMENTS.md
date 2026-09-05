@@ -56,6 +56,7 @@ Eine öffentlich erreichbare Website zeigt das Leaderboard des Vereins eSports M
 ## 4. Registrierung und Benutzerkonto
 
 - Pflichtfelder bei der Selbstregistrierung: Name, Alias, E-Mail-Adresse und Passwort.
+- Neue Passwörter umfassen mindestens 4 Zeichen; weitere Komplexitätsanforderungen bestehen nicht.
 - Alias und E-Mail-Adresse können zur Anmeldung verwendet werden.
 - Der Alias ist öffentlich sichtbar und muss eindeutig sein.
 - Name und E-Mail-Adresse sind nicht öffentlich sichtbar.
@@ -217,6 +218,7 @@ Noch nicht vollständig festgelegt. Funktionen außerhalb des ersten Releases we
 
 | Datum      | Entscheidung                                                                                                                                       | Status    |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 05.09.2026 | Neue Passwörter benötigen mindestens 4 Zeichen; Groß-/Kleinbuchstaben, Ziffern, Sonderzeichen oder Kombinationen sind nicht vorgeschrieben.         | Bestätigt |
 | 04.09.2026 | Website dient genau einem Verein und verwendet dessen Logo und Farben.                                                                             | Bestätigt |
 | 04.09.2026 | Das Leaderboard ist öffentlich und zeigt ausschließlich Aliasse.                                                                                   | Bestätigt |
 | 04.09.2026 | Mitglieder registrieren sich selbst und melden sich mit Alias oder E-Mail-Adresse und Passwort an.                                                 | Bestätigt |
