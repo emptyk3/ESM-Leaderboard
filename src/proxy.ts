@@ -10,6 +10,7 @@ export async function proxy(request: NextRequest) {
   const response = NextResponse.next();
   if (
     request.nextUrl.pathname.startsWith("/teilnehmen/") ||
+    request.nextUrl.pathname.startsWith("/admin/qr/") ||
     /^\/events\/[^/]+\/qr(?:\/|$)/.test(request.nextUrl.pathname) ||
     (request.nextUrl.pathname === "/anmelden" &&
       request.nextUrl.searchParams.get("returnTo")?.startsWith("/teilnehmen/"))

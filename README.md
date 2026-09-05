@@ -123,6 +123,20 @@ Präsentationsansicht unterstützt Beamer, PNG-Download und ein reduziertes
 Drucklayout. QR- und Scanantworten sind `noindex`, verwenden `no-store` und
 unterdrücken Referrer. Öffentliche Seiten enthalten weder Token noch QR-Link.
 
+Der Hauptadmin sieht in derselben QR-Code-Übersicht zusätzlich den Bereich
+„Registrierung“. Dessen permanenter QR-Code enthält ausschließlich die aus
+`APP_URL` beziehungsweise Vercels stabiler Production-URL gebildete Adresse
+`/registrieren`. Vorschau, Großansicht, hochauflösender PNG-Download und
+A4-Druckansicht sind serverseitig ausschließlich für den Hauptadmin erreichbar;
+Veranstalter erhalten darauf auch über direkte Routen keinen Zugriff. Es wird
+kein Datenbankobjekt angelegt und keine geheime oder benutzerbezogene Information
+kodiert.
+
+Wird später die kanonische Domain geändert, erzeugt die Anwendung ohne
+Codeänderung einen QR-Code für die neue Basisadresse. Bereits gedruckte Codes
+mit der bisherigen Domain funktionieren jedoch nur weiter, wenn diese Domain
+erreichbar bleibt oder auf die neue Registrierungsadresse weiterleitet.
+
 Die Scanroute führt nur eine serverseitige Tokenprüfung aus. Eine Teilnahme
 entsteht erst nach ausdrücklicher Bestätigung über eine Server Action. Serverzeit,
 Eventzeitraum, aktiver Saisonstatus, Kontosperre und Veranstalter-Doppelwertung

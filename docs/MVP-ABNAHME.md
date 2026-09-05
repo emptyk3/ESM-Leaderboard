@@ -19,6 +19,14 @@ früher scanbar machen. Veranstalter dürfen die berechnete Scanzeit ausschließ
 in geschützten QR-Ausgaben sehen. Öffentliche DTOs bleiben frei von Konfiguration
 und vorgezogenem Zeitpunkt; das Eventende bleibt exklusiv.
 
+Registrierungs-QR: Ausschließlich der Hauptadmin erhält in der geschützten
+QR-Code-Übersicht Vorschau, kontrollierbare Zieladresse, Großansicht,
+hochauflösenden PNG-Download und A4-Druckausgabe für `/registrieren`. Der Inhalt
+wird deterministisch aus der kanonischen Production-URL gebildet, enthält keine
+Secrets und wurde automatisiert aus dem PNG zurückdekodiert. Nach einem
+Domainwechsel benötigen bereits gedruckte Codes eine erreichbare alte Domain
+oder eine Weiterleitung.
+
 | Bereich                    | Anforderung                                                                                              | Nachweis                                                                                              | Status                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Öffentlichkeit             | Leaderboard zeigt nur Alias, Rang und Punkte; Gleichstände und alphabetische Reihenfolge                 | `leaderboard.test.ts`, `public-data-invariants.test.ts`, Produktionsaufruf `/`                        | Verifiziert                                                                         |

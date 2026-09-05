@@ -65,11 +65,32 @@ export function qrApplicationOrigin(env: {
     ? env.APP_URL
     : env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "http://localhost:3000";
-  const url = new URL(raw);
+      : env.NODE_ENV === "production"
+        ? null
+        : "http://localhost:3000";
+  if (!raw)
+    throw new Error("Die kanonische Anwendungsadresse ist nicht konfiguriert.");
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("Die kanonische Anwendungsadresse ist ungültig.");
+  }
+  if (
+    !["http:", "https:"].includes(url.protocol) ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash
+  )
+    throw new Error("Die kanonische Anwendungsadresse ist ungültig.");
   if (env.NODE_ENV === "production" && url.protocol !== "https:")
     throw new Error("Die QR-Basisadresse muss in Produktion HTTPS verwenden.");
   return url.origin;
+}
+
+export function qrRegistrationUrl(origin: string): string {
+  return new URL("/registrieren", origin).toString();
 }
 
 export function qrParticipationUrl(origin: string, token: string): string {

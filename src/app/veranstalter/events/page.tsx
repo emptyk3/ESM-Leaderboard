@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { RegistrationQrCard } from "@/components/registration-qr-card";
 import { eventStatus } from "@/domain/event";
 import { formatViennaDateTime } from "@/domain/vienna-date";
 import { scanStartsAt } from "@/domain/participation";
 import { getManagedQrEvents } from "@/server/participation-service";
+import { registrationQrDataUrl } from "@/server/registration-qr-service";
 import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +15,12 @@ export default async function OrganizerEventsPage() {
   const user = await getRequiredUser();
   if (!user) redirect("/anmelden");
   const events = await getManagedQrEvents(user);
+  const registrationQr = user.isMainAdmin
+    ? await registrationQrDataUrl(user)
+    : null;
   return (
     <main className="page-shell admin-page">
+      {registrationQr && <RegistrationQrCard {...registrationQr} />}
       <section className="card wide-card">
         <p className="eyebrow">Geschützter Bereich</p>
         <h1>Meine Event-QR-Codes</h1>
