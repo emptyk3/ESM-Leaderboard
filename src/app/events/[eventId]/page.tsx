@@ -6,7 +6,7 @@ import { getPublicEvent } from "@/server/public-service";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Event · eSports Mostviertel",
+  title: "Event",
   description: "Öffentliche Eventdetails von eSports Mostviertel.",
 };
 

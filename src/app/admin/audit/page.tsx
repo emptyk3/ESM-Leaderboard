@@ -12,7 +12,7 @@ import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Audit-Protokoll · eSports Mostviertel",
+  title: "Audit-Protokoll",
   robots: { index: false, follow: false },
 };
 

@@ -6,6 +6,7 @@ import { getManagedQrEvents } from "@/server/participation-service";
 import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Event-QR-Codes" };
 
 export default async function OrganizerEventsPage() {
   const user = await getRequiredUser();

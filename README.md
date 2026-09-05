@@ -193,6 +193,18 @@ Korrektur an; deshalb bleiben diese Werkzeugkettenbefunde bis zu einem
 kompatiblen Prisma-Update dokumentiertes Restrisiko. Der separat gemeldete
 `esbuild`-Befund wurde durch das Update auf 0.28.2 behoben.
 
+## Vereinsdesign und Bedienung
+
+Das UI verwendet ein kleines CSS-Designsystem in `src/app/globals.css` mit den
+Vereinsfarben, konsistenten Abständen, Radien, Fokus-, Status- und
+Aktionszuständen. Das hellere Oberflächen-Grau und die aufgehellte
+Sekundärschrift sichern auf dunklem Grund mindestens AA-taugliche Kontraste.
+Die Hauptnavigation wird unter 832 Pixeln zu einem tastaturbedienbaren Menü;
+Tabellen und Aktionsbereiche bleiben auf schmalen Displays scrollbar oder
+wechseln in eine einspaltige Darstellung. Die QR-Präsentation blendet die
+Seitennavigation aus. Das Drucklayout enthält Logo, Eventname, Zeitraum,
+Statushinweis und QR-Code, aber keine Bedienelemente.
+
 ## Deployment
 
 Das GitHub-Repository ist über die offizielle Git-Integration mit Vercel verbunden. Pushes auf den Produktionsbranch `main` lösen automatisch ein Production-Deployment aus. Die laufende Anwendung erhält in Vercel Production `DATABASE_URL` als gepoolte Neon-Verbindung. `DIRECT_URL` ist dort als direkte Verbindung für kontrollierte Prisma-Migrationsläufe hinterlegt. Der Vercel-Build führt `prisma migrate deploy` ausschließlich für Production aus und baut danach Next.js. Preview-Deployments überspringen Migrationen und erhalten vorerst keinen Zugriff auf die Produktionsdatenbank, solange keine verwaltete Neon-Preview-Verzweigung eingerichtet ist.

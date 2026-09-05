@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { RegistrationForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/server/session-cookie";
 
+export const metadata = { title: "Registrieren" };
+
 export default async function RegistrationPage() {
   if (await getCurrentUser()) redirect("/konto");
   return (

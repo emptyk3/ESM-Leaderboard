@@ -3,6 +3,8 @@ import { LoginForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/server/session-cookie";
 import { safeScanReturnPath } from "@/domain/participation";
 
+export const metadata = { title: "Anmelden" };
+
 export default async function LoginPage({
   searchParams,
 }: {

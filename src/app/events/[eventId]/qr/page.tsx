@@ -14,7 +14,7 @@ import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Event-QR-Code · eSports Mostviertel",
+  title: "Event-QR-Code",
   robots: { index: false, follow: false, nocache: true },
   referrer: "no-referrer",
 };

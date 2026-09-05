@@ -10,7 +10,7 @@ import {
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Aliasprofil · eSports Mostviertel",
+  title: "Aliasprofil",
   description: "Öffentliches Saisonprofil eines Leaderboard-Alias.",
 };
 

@@ -9,6 +9,7 @@ import {
 import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Saisonverwaltung" };
 
 export default async function SeasonAdminPage() {
   const user = await getRequiredUser();

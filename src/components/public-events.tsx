@@ -32,7 +32,9 @@ export function PublicEventGroup({
                   {formatViennaDateTime(event.endsAt)}
                 </span>
                 <span>{event.participantPoints} Teilnehmerpunkte</span>
-                <span className="status-badge">{status}</span>
+                <span className={`status-badge status-${status.toLowerCase()}`}>
+                  {status}
+                </span>
               </Link>
             </li>
           ))}

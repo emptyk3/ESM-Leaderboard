@@ -8,7 +8,7 @@ import { requestFingerprint } from "@/server/rate-limit-service";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Eventteilnahme · eSports Mostviertel",
+  title: "Eventteilnahme",
   robots: { index: false, follow: false, nocache: true },
   referrer: "no-referrer",
 };

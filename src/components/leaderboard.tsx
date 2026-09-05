@@ -30,6 +30,9 @@ export function Leaderboard({
       ) : (
         <div className="table-scroll">
           <table>
+            <caption className="sr-only">
+              Rangliste der Saison {data.season.name}
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Rang</th>
@@ -39,7 +42,10 @@ export function Leaderboard({
             </thead>
             <tbody>
               {data.entries.map((entry) => (
-                <tr key={`${entry.rank}-${entry.alias}`}>
+                <tr
+                  key={`${entry.rank}-${entry.alias}`}
+                  data-rank={entry.rank <= 3 ? entry.rank : undefined}
+                >
                   <td className="rank">{entry.rank}</td>
                   <td>
                     {entry.profileId ? (
@@ -72,7 +78,7 @@ export function ArchiveNavigation({
   currentId?: string;
 }) {
   return (
-    <nav className="archive-nav" aria-label="Saisonarchiv">
+    <nav id="archiv" className="archive-nav" aria-label="Saisonarchiv">
       <h2>Archiv</h2>
       {seasons.length === 0 ? (
         <p>Noch keine abgeschlossenen Saisonen.</p>

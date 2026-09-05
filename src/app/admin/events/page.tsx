@@ -12,6 +12,7 @@ import { getEventAdminData } from "@/server/event-service";
 import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Eventverwaltung" };
 
 export default async function EventAdminPage() {
   const user = await getRequiredUser();

@@ -3,7 +3,10 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "eSports Mostviertel Leaderboard",
+  title: {
+    default: "eSports Mostviertel Leaderboard",
+    template: "%s · eSports Mostviertel",
+  },
   description: "Das Vereins-Leaderboard von eSports Mostviertel",
 };
 

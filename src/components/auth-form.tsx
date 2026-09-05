@@ -14,7 +14,11 @@ const initialState: FormState = {};
 function Message({ state }: { state: FormState }) {
   if (!state.message) return null;
   return (
-    <p className={`form-message ${state.status ?? ""}`} role="status">
+    <p
+      className={`form-message ${state.status ?? ""}`}
+      role={state.status === "error" ? "alert" : "status"}
+      aria-live="polite"
+    >
       {state.message}
     </p>
   );
@@ -36,6 +40,7 @@ export function RegistrationForm() {
         required
         maxLength={200}
         aria-describedby="name-error"
+        aria-invalid={Boolean(state.fieldErrors?.name)}
       />
       <span id="name-error">
         <ErrorText value={state.fieldErrors?.name} />
@@ -49,6 +54,7 @@ export function RegistrationForm() {
         minLength={3}
         maxLength={30}
         aria-describedby="alias-error"
+        aria-invalid={Boolean(state.fieldErrors?.alias)}
       />
       <span id="alias-error">
         <ErrorText value={state.fieldErrors?.alias} />
@@ -62,6 +68,8 @@ export function RegistrationForm() {
         required
         maxLength={320}
         aria-describedby="email-error"
+        aria-invalid={Boolean(state.fieldErrors?.email)}
+        inputMode="email"
       />
       <span id="email-error">
         <ErrorText value={state.fieldErrors?.email} />
@@ -76,6 +84,7 @@ export function RegistrationForm() {
         minLength={10}
         maxLength={256}
         aria-describedby="password-hint password-error"
+        aria-invalid={Boolean(state.fieldErrors?.password)}
       />
       <small id="password-hint">Mindestens 10 Zeichen.</small>
       <span id="password-error">
@@ -103,6 +112,8 @@ export function LoginForm({ returnTo }: { returnTo?: string }) {
         name="identifier"
         autoComplete="username"
         required
+        autoCapitalize="none"
+        spellCheck={false}
       />
       <label htmlFor="login-password">Passwort</label>
       <input

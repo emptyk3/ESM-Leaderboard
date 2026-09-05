@@ -6,6 +6,7 @@ import {
 } from "@/server/season-service";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Saisonarchiv" };
 
 export default async function ArchivePage({
   params,

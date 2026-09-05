@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { AliasForm } from "@/components/auth-form";
 import { getRequiredUser } from "@/server/session-cookie";
 
+export const metadata = { title: "Mein Konto" };
+
 export default async function AccountPage() {
   const user = await getRequiredUser();
   if (!user) redirect("/anmelden");

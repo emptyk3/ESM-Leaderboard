@@ -9,6 +9,7 @@ import { getMemberAdminData } from "@/server/member-service";
 import { getRequiredUser } from "@/server/session-cookie";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Mitgliederverwaltung" };
 
 export default async function MembersPage({
   searchParams,
