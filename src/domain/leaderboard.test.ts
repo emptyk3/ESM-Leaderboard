@@ -13,6 +13,7 @@ function member(
     userId: `user-${overrides.alias}`,
     normalizedAlias: overrides.alias.toLocaleLowerCase("de-AT"),
     identityType: "MEMBER",
+    isMainAdmin: false,
     isApproved: true,
     isBlocked: false,
     participations: [],
@@ -91,6 +92,43 @@ describe("Leaderboard-Berechnung", () => {
     expect(result.map(({ alias, points }) => [alias, points])).toEqual([
       ["Blocked", 5],
       ["Zero", 0],
+    ]);
+  });
+
+  it("behält vor Freigabe gesammelte Punkte und zeigt sie danach ohne erneute Teilnahme", () => {
+    const pending = member({
+      alias: "Scanmitglied",
+      isApproved: false,
+      participations: [{ eventId: "scan-event", points: 12 }],
+    });
+    expect(calculateLeaderboard([pending])).toEqual([]);
+    expect(
+      calculateLeaderboard([{ ...pending, isApproved: true }]).map(
+        ({ alias, points }) => [alias, points],
+      ),
+    ).toEqual([["Scanmitglied", 12]]);
+  });
+
+  it("schließt den Hauptadmin mit und ohne Punkte vor der Rangvergabe aus", () => {
+    const result = calculateLeaderboard([
+      member({ alias: "Admin ohne Punkte", isMainAdmin: true }),
+      member({
+        alias: "Admin mit Punkten",
+        isMainAdmin: true,
+        participations: [{ eventId: "event", points: 100 }],
+      }),
+      member({
+        alias: "Alpha",
+        participations: [{ eventId: "event", points: 10 }],
+      }),
+      member({
+        alias: "Beta",
+        participations: [{ eventId: "event", points: 10 }],
+      }),
+    ]);
+    expect(result.map(({ rank, alias }) => [rank, alias])).toEqual([
+      [1, "Alpha"],
+      [1, "Beta"],
     ]);
   });
 

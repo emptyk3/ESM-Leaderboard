@@ -15,6 +15,7 @@ describe("Archiv- und Saisoninvarianten", () => {
         alias: "Damals",
         normalizedAlias: "damals",
         identityType: "MEMBER",
+        isMainAdmin: false,
         isApproved: true,
         isBlocked: false,
         participations: [{ eventId: "event", points: 10 }],
@@ -28,6 +29,24 @@ describe("Archiv- und Saisoninvarianten", () => {
     live[0].participations[0].points = 99;
     live.splice(0, 1);
     expect(snapshot).toEqual([{ rank: 1, alias: "Damals", points: 10 }]);
+  });
+
+  it("übernimmt den Hauptadmin nicht in einen neuen Snapshot", () => {
+    const ranked = calculateLeaderboard([
+      {
+        identityId: "admin-alias",
+        userId: "admin-user",
+        alias: "Admin",
+        normalizedAlias: "admin",
+        identityType: "MEMBER",
+        isMainAdmin: true,
+        isApproved: true,
+        isBlocked: false,
+        participations: [{ eventId: "event", points: 99 }],
+        organizerCredits: [],
+      },
+    ]);
+    expect(ranked).toEqual([]);
   });
 
   it("sichert aktive Saison, Zeiträume und Snapshot-Inhalte zusätzlich in PostgreSQL ab", () => {

@@ -49,7 +49,10 @@ async function loadLeaderboardIdentities(
 ): Promise<LeaderboardMember[]> {
   const aliases = await tx.aliasIdentity.findMany({
     where: {
-      OR: [{ isReserved: true }, { user: { is: { isApproved: true } } }],
+      OR: [
+        { isReserved: true },
+        { user: { is: { isApproved: true, mainAdmin: null } } },
+      ],
     },
     select: {
       id: true,
@@ -68,6 +71,7 @@ async function loadLeaderboardIdentities(
           id: true,
           isApproved: true,
           isBlocked: true,
+          mainAdmin: { select: { id: true } },
           participations: {
             where: { event: { seasonId } },
             select: {
@@ -85,6 +89,7 @@ async function loadLeaderboardIdentities(
     alias: alias.displayAlias,
     normalizedAlias: alias.normalizedAlias,
     identityType: alias.isReserved ? "RESERVED" : "MEMBER",
+    isMainAdmin: Boolean(alias.user?.mainAdmin),
     isApproved: alias.user?.isApproved ?? false,
     isBlocked: alias.user?.isBlocked ?? false,
     participations: (alias.user?.participations ?? []).map((item) => ({

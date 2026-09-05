@@ -6,6 +6,7 @@ export type LeaderboardMember = {
   alias: string;
   normalizedAlias: string;
   identityType: "MEMBER" | "RESERVED";
+  isMainAdmin: boolean;
   isApproved: boolean;
   isBlocked: boolean;
   participations: PointCredit[];
@@ -28,7 +29,11 @@ export function calculateLeaderboard(
   members: LeaderboardMember[],
 ): RankedMember[] {
   const scored = members
-    .filter((member) => member.identityType === "RESERVED" || member.isApproved)
+    .filter(
+      (member) =>
+        !member.isMainAdmin &&
+        (member.identityType === "RESERVED" || member.isApproved),
+    )
     .map((member) => {
       const organizerEvents = new Set(
         member.organizerCredits.map((credit) => credit.eventId),

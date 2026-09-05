@@ -33,13 +33,19 @@ describe("öffentliche Datengrenzen", () => {
     expect(profilePage).toContain("historische Eventaufschlüsselung");
   });
   it("erlaubt freigegebene, gesperrt sichtbare und reservierte Identitäten, aber keine offenen normalen Konten", () => {
-    expect(service).toContain(
-      "{ isReserved: true }, { user: { is: { isApproved: true } } }",
-    );
+    expect(service).toContain("{ isReserved: true }");
+    expect(service).toContain("isApproved: true, mainAdmin: null");
     expect(service).not.toContain("isBlocked:");
   });
   it("liefert neutrale 404-Zustände", () => {
     expect(eventPage).toContain("notFound()");
     expect(profilePage).toContain("notFound()");
+  });
+  it("schließt Hauptadminprofile einschließlich Archivansichten serverseitig aus", () => {
+    expect(service).toContain("isMainAdminProfile(publicId)");
+    expect(service.match(/await isMainAdminProfile\(publicId\)/g)).toHaveLength(
+      3,
+    );
+    expect(service).toContain("mainAdmin: null");
   });
 });

@@ -2,6 +2,15 @@ import "server-only";
 import { getPrisma } from "./prisma";
 import { getActiveLeaderboard } from "./season-service";
 
+async function isMainAdminProfile(publicId: string): Promise<boolean> {
+  return (
+    (await getPrisma().mainAdmin.findFirst({
+      where: { user: { alias: { publicId } } },
+      select: { id: true },
+    })) !== null
+  );
+}
+
 export async function getPublicEvents() {
   return getPrisma().event.findMany({
     where: { season: { isActive: true, archivedAt: null } },
@@ -38,10 +47,14 @@ export async function getPublicEvent(publicId: string) {
 
 export async function getPublicProfile(publicId: string) {
   if (!/^[0-9a-f-]{36}$/i.test(publicId)) return null;
+  if (await isMainAdminProfile(publicId)) return null;
   const identity = await getPrisma().aliasIdentity.findUnique({
     where: {
       publicId,
-      OR: [{ isReserved: true }, { user: { is: { isApproved: true } } }],
+      OR: [
+        { isReserved: true },
+        { user: { is: { isApproved: true, mainAdmin: null } } },
+      ],
     },
     select: {
       displayAlias: true,
@@ -106,6 +119,7 @@ export async function getPublicProfile(publicId: string) {
 
 export async function getPublicProfileArchives(publicId: string) {
   if (!/^[0-9a-f-]{36}$/i.test(publicId)) return [];
+  if (await isMainAdminProfile(publicId)) return [];
   return getPrisma().seasonSnapshotEntry.findMany({
     where: { aliasPublicId: publicId },
     select: {
@@ -130,6 +144,7 @@ export async function getPublicArchivedProfile(
   seasonId: string,
 ) {
   if (!/^[0-9a-f-]{36}$/i.test(publicId)) return null;
+  if (await isMainAdminProfile(publicId)) return null;
   return getPrisma().seasonSnapshotEntry.findFirst({
     where: { aliasPublicId: publicId, snapshot: { seasonId } },
     select: {

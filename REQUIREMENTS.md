@@ -44,6 +44,7 @@ Eine öffentlich erreichbare Website zeigt das Leaderboard des Vereins eSports M
 ### Admin
 
 - Das System hat genau einen Hauptadmin.
+- Das Hauptadmin-Konto ist ein reines Verwaltungskonto und erscheint weder im öffentlichen Leaderboard noch in öffentlichen Aliasprofilen oder neuen Saisonarchiven.
 - Kann Events erstellen und verwalten.
 - Kann QR-Codes für Events erzeugen.
 - Kann den QR-Code eines laufenden Events ausschließlich im geschützten Adminbereich bildschirmfüllend darstellen, beispielsweise für eine Projektion per Beamer.
@@ -218,6 +219,7 @@ Noch nicht vollständig festgelegt. Funktionen außerhalb des ersten Releases we
 
 | Datum      | Entscheidung                                                                                                                                       | Status    |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 05.09.2026 | Das Hauptadmin-Konto ist von öffentlichen Ranglisten, Aliasprofilen und neu erzeugten Saison-Snapshots ausgeschlossen.                             | Bestätigt |
 | 05.09.2026 | Neue Passwörter benötigen mindestens 4 Zeichen; Groß-/Kleinbuchstaben, Ziffern, Sonderzeichen oder Kombinationen sind nicht vorgeschrieben.         | Bestätigt |
 | 04.09.2026 | Website dient genau einem Verein und verwendet dessen Logo und Farben.                                                                             | Bestätigt |
 | 04.09.2026 | Das Leaderboard ist öffentlich und zeigt ausschließlich Aliasse.                                                                                   | Bestätigt |
