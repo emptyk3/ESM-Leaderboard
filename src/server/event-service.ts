@@ -70,6 +70,7 @@ function publicEventSelect() {
     endsAt: true,
     participantPoints: true,
     organizerPoints: true,
+    earlyScanMinutes: true,
     seasonId: true,
     organizers: {
       select: {
@@ -205,6 +206,7 @@ export async function createEvent(
               participantPoints: eventData.participantPoints,
               organizerPoints: eventData.organizerPoints,
               organizerCount: organizerAliasIds.length,
+              earlyScanMinutes: eventData.earlyScanMinutes,
             },
           },
         });
@@ -234,6 +236,7 @@ export async function updateEvent(
           select: {
             participantPoints: true,
             organizerPoints: true,
+            earlyScanMinutes: true,
             organizers: { select: { aliasId: true } },
           },
         });
@@ -274,6 +277,10 @@ export async function updateEvent(
               metadata: {
                 organizersChanged,
                 organizerCount: organizerAliasIds.length,
+                earlyScanMinutesChanged:
+                  previous.earlyScanMinutes !== eventData.earlyScanMinutes,
+                earlyScanMinutesBefore: previous.earlyScanMinutes,
+                earlyScanMinutesAfter: eventData.earlyScanMinutes,
               },
             },
             ...(pointsChanged

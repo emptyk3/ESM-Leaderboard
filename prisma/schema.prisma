@@ -132,6 +132,7 @@ model Event {
   endsAt             DateTime @db.Timestamptz(6)
   participantPoints  Int
   organizerPoints    Int?
+  earlyScanMinutes   Int?
   /// Opaque high-entropy secret used to reproduce this event's one stable QR link.
   participationToken String   @unique
   createdAt          DateTime @default(now()) @db.Timestamptz(6)

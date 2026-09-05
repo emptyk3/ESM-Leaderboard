@@ -36,6 +36,11 @@ describe("event persistence invariants", () => {
     expect(service).toContain("participationToken: randomBytes(32)");
     expect(service).not.toMatch(/metadata:[\s\S]{0,250}participationToken/);
   });
+  it("audits early-scan changes without exposing the QR token", () => {
+    expect(service).toContain("earlyScanMinutesBefore");
+    expect(service).toContain("earlyScanMinutesAfter");
+    expect(service).not.toMatch(/metadata:[\s\S]{0,400}participationToken/);
+  });
   it("authorizes every mutation inside its database transaction", () => {
     expect(service.match(/await assertMainAdmin\(tx, actorId\)/g)).toHaveLength(
       5,

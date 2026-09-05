@@ -5,11 +5,24 @@ export const PARTICIPATION_BEFORE_MESSAGE =
 export const PARTICIPATION_AFTER_MESSAGE =
   "Tut uns leid, das Event ist leider vorbei.";
 
+export function scanStartsAt(event: {
+  startsAt: Date;
+  earlyScanMinutes?: number | null;
+}): Date {
+  const result = new Date(event.startsAt);
+  result.setUTCMinutes(result.getUTCMinutes() - (event.earlyScanMinutes ?? 0));
+  if (Number.isNaN(result.getTime()))
+    throw new Error(
+      "Der früheste Scanzeitpunkt ist technisch nicht darstellbar.",
+    );
+  return result;
+}
+
 export function participationWindow(
-  event: { startsAt: Date; endsAt: Date },
+  event: { startsAt: Date; endsAt: Date; earlyScanMinutes?: number | null },
   now = new Date(),
 ): ParticipationWindow {
-  if (now < event.startsAt) return "BEFORE";
+  if (now < scanStartsAt(event)) return "BEFORE";
   if (now >= event.endsAt) return "AFTER";
   return "OPEN";
 }
@@ -25,6 +38,7 @@ export function decideParticipation(input: {
   seasonIsArchived: boolean;
   startsAt: Date;
   endsAt: Date;
+  earlyScanMinutes?: number | null;
   now: Date;
 }): ParticipationDecision {
   if (input.isBlocked) return "BLOCKED";

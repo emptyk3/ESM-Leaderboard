@@ -24,6 +24,9 @@ function input(data: FormData) {
     organizerAliasIds: data
       .getAll("organizerAliasIds")
       .filter((item): item is string => typeof item === "string"),
+    earlyScanEnabled:
+      value(data, "earlyScanEnabled") === "true" ? "true" : "false",
+    earlyScanMinutes: value(data, "earlyScanMinutes"),
   };
 }
 async function admin() {

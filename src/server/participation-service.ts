@@ -1,5 +1,6 @@
 import "server-only";
 import QRCode from "qrcode";
+import sharp from "sharp";
 import { Prisma } from "../../generated/prisma/client";
 import { mayAccessEventQr } from "@/domain/event";
 import {
@@ -7,7 +8,9 @@ import {
   participationWindow,
   qrApplicationOrigin,
   qrParticipationUrl,
+  scanStartsAt,
 } from "@/domain/participation";
+import { formatViennaDateTime } from "@/domain/vienna-date";
 import type { SafeUser } from "./auth-service";
 import { getPrisma } from "./prisma";
 import { getActiveRankForUser } from "./season-service";
@@ -20,6 +23,7 @@ const qrEventSelect = {
   startsAt: true,
   endsAt: true,
   participantPoints: true,
+  earlyScanMinutes: true,
   participationToken: true,
   organizers: {
     select: {
@@ -56,6 +60,7 @@ export async function getManagedQrEvents(user: SafeUser) {
       location: true,
       startsAt: true,
       endsAt: true,
+      earlyScanMinutes: true,
       season: { select: { name: true, archivedAt: true } },
     },
     orderBy: { startsAt: "desc" },
@@ -75,13 +80,41 @@ function absoluteParticipationUrl(token: string) {
 
 export async function qrPngForEvent(eventId: string, user: SafeUser) {
   const event = await getQrEvent(eventId, user);
-  return QRCode.toBuffer(absoluteParticipationUrl(event.participationToken), {
-    type: "png",
-    width: 1600,
-    margin: 4,
-    errorCorrectionLevel: "H",
-    color: { dark: "#050505", light: "#FFFFFF" },
-  });
+  const qr = await QRCode.toBuffer(
+    absoluteParticipationUrl(event.participationToken),
+    {
+      type: "png",
+      width: 1200,
+      margin: 4,
+      errorCorrectionLevel: "H",
+      color: { dark: "#050505", light: "#FFFFFF" },
+    },
+  );
+  const escapeXml = (value: string) =>
+    value.replace(
+      /[<>&"']/g,
+      (character) =>
+        ({
+          "<": "&lt;",
+          ">": "&gt;",
+          "&": "&amp;",
+          '"': "&quot;",
+          "'": "&apos;",
+        })[character]!,
+    );
+  const official = `Eventbeginn: ${formatViennaDateTime(event.startsAt)}`;
+  const early = event.earlyScanMinutes
+    ? `QR-Code scanbar ab ${formatViennaDateTime(scanStartsAt(event))} (${event.earlyScanMinutes} Minuten vor Eventbeginn)`
+    : `QR-Code scanbar ab ${formatViennaDateTime(event.startsAt)}`;
+  const shortTitle =
+    event.title.length > 70 ? `${event.title.slice(0, 69)}…` : event.title;
+  const caption = Buffer.from(
+    `<svg width="1600" height="1900" xmlns="http://www.w3.org/2000/svg"><rect width="1600" height="1900" fill="#fff"/><text x="800" y="95" text-anchor="middle" font-family="Arial,sans-serif" font-size="54" font-weight="700" fill="#050505">${escapeXml(shortTitle)}</text><text x="800" y="175" text-anchor="middle" font-family="Arial,sans-serif" font-size="34" fill="#050505">${escapeXml(official)}</text><text x="800" y="235" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" fill="#245F00">${escapeXml(early)}</text></svg>`,
+  );
+  return sharp(caption)
+    .composite([{ input: qr, left: 200, top: 350 }])
+    .png()
+    .toBuffer();
 }
 
 export async function qrDataUrlForEvent(eventId: string, user: SafeUser) {
@@ -100,6 +133,7 @@ export type ScanEvent = {
   startsAt: Date;
   endsAt: Date;
   participantPoints: number;
+  earlyScanMinutes: number | null;
   window: ReturnType<typeof participationWindow>;
   alreadyParticipating: boolean;
 };
@@ -121,6 +155,7 @@ export async function getScanEvent(
       location: true,
       startsAt: true,
       endsAt: true,
+      earlyScanMinutes: true,
       participantPoints: true,
       participations: userId
         ? { where: { userId }, select: { id: true }, take: 1 }
@@ -136,6 +171,7 @@ export async function getScanEvent(
     location: event.location,
     startsAt: event.startsAt,
     endsAt: event.endsAt,
+    earlyScanMinutes: event.earlyScanMinutes,
     participantPoints: event.participantPoints,
     window: participationWindow(event),
     alreadyParticipating:
@@ -202,6 +238,7 @@ export async function recordQrParticipation(
             title: true,
             startsAt: true,
             endsAt: true,
+            earlyScanMinutes: true,
             participantPoints: true,
             season: { select: { isActive: true, archivedAt: true } },
             organizers: {
@@ -227,6 +264,7 @@ export async function recordQrParticipation(
           seasonIsArchived: event.season.archivedAt !== null,
           startsAt: event.startsAt,
           endsAt: event.endsAt,
+          earlyScanMinutes: event.earlyScanMinutes,
           now,
         });
         if (decision === "BLOCKED") return { status: "BLOCKED" };

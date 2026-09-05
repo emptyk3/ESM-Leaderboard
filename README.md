@@ -135,6 +135,12 @@ fordert die Scanseite zum späteren erneuten Versuch auf; ab dem exakten Ende
 weist sie darauf hin, dass das Event vorbei ist. Außerhalb des Fensters wird
 keine Bestätigungsaktion angeboten.
 
+Optional kann der Hauptadmin eine positive ganzzahlige Vorlaufzeit aktivieren.
+Dann beginnt das Fenster entsprechend früher, während offizieller Eventbeginn
+und exklusives Ende unverändert bleiben. Die Konfiguration ist nur in der
+Eventverwaltung sowie für berechtigte Personen in QR-Übersicht, QR-Ansicht,
+Druck und PNG sichtbar; öffentliche Event- und Profildaten enthalten sie nicht.
+
 Eine verteilte Begrenzung ungültiger Tokenversuche ist ohne gemeinsamen
 Rate-Limit-Speicher nicht zuverlässig umsetzbar und wurde daher nicht als
 scheinbarer In-Memory-Schutz eingebaut. Die hochentropischen Token, generischen

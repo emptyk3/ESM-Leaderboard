@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PrintButton } from "@/components/print-button";
-import { participationWindow } from "@/domain/participation";
+import { participationWindow, scanStartsAt } from "@/domain/participation";
 import { formatViennaDateTime } from "@/domain/vienna-date";
 import {
   getQrEvent,
@@ -56,13 +56,21 @@ export default async function QrPage({
             {formatViennaDateTime(event.startsAt)} –{" "}
             {formatViennaDateTime(event.endsAt)}
           </p>
+          {event.earlyScanMinutes && (
+            <p>
+              <strong>
+                QR-Code scanbar ab {formatViennaDateTime(scanStartsAt(event))}
+              </strong>{" "}
+              ({event.earlyScanMinutes} Minuten vor Eventbeginn)
+            </p>
+          )}
         </div>
       </header>
       <div className={`qr-window ${window.toLowerCase()}`}>
         {window === "OPEN"
           ? "Teilnahme ist jetzt möglich"
           : window === "BEFORE"
-            ? `Teilnahme ab ${formatViennaDateTime(event.startsAt)}`
+            ? `Teilnahme ab ${formatViennaDateTime(scanStartsAt(event))}`
             : "Teilnahmefrist beendet"}
       </div>
       <div className="qr-image-wrap">

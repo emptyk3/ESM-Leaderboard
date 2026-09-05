@@ -14,6 +14,11 @@ Aliasse. Automatisiert geprüft sind Wertebereich, Pflichtbegründung,
 Gesamtberechnung, Zugriffsschutz, Idempotenz, Public-DTO und unveränderlicher
 Saison-Snapshot. Der Produktions-Smoke-Test verändert keine Buchungsdaten.
 
+QR-Vorlauf: Der Hauptadmin kann Events optional um positive ganze Minuten
+früher scanbar machen. Veranstalter dürfen die berechnete Scanzeit ausschließlich
+in geschützten QR-Ausgaben sehen. Öffentliche DTOs bleiben frei von Konfiguration
+und vorgezogenem Zeitpunkt; das Eventende bleibt exklusiv.
+
 | Bereich                    | Anforderung                                                                                              | Nachweis                                                                                              | Status                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Öffentlichkeit             | Leaderboard zeigt nur Alias, Rang und Punkte; Gleichstände und alphabetische Reihenfolge                 | `leaderboard.test.ts`, `public-data-invariants.test.ts`, Produktionsaufruf `/`                        | Verifiziert                                                                         |

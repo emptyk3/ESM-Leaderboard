@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   createEventAction,
   deleteEventAction,
@@ -26,6 +26,7 @@ type EditableEvent = {
   endsAt: Date;
   participantPoints: number;
   organizerPoints: number | null;
+  earlyScanMinutes: number | null;
   organizers: { aliasId: string }[];
 };
 
@@ -57,6 +58,9 @@ function EventFields({
   event?: EditableEvent;
 }) {
   const selected = new Set(event?.organizers.map((item) => item.aliasId) ?? []);
+  const [earlyScanEnabled, setEarlyScanEnabled] = useState(
+    event?.earlyScanMinutes != null,
+  );
   return (
     <>
       <label>
@@ -127,6 +131,35 @@ function EventFields({
           />
         </label>
       </div>
+      <fieldset className="early-scan-fields">
+        <legend>QR-Teilnahmefenster</legend>
+        <label className="confirm-row">
+          <input
+            type="checkbox"
+            name="earlyScanEnabled"
+            value="true"
+            checked={earlyScanEnabled}
+            onChange={(event) =>
+              setEarlyScanEnabled(event.currentTarget.checked)
+            }
+          />
+          <span>Frühzeitig scanbar</span>
+        </label>
+        <label>
+          Scan möglich ab … Minuten vor Beginn
+          <input
+            name="earlyScanMinutes"
+            type="number"
+            min="1"
+            step="1"
+            inputMode="numeric"
+            defaultValue={event?.earlyScanMinutes ?? ""}
+            disabled={!earlyScanEnabled}
+            required={earlyScanEnabled}
+          />
+        </label>
+        <small>Der offizielle Eventbeginn bleibt unverändert.</small>
+      </fieldset>
       <fieldset className="organizer-picker">
         <legend>Veranstalter (mehrere möglich)</legend>
         {aliases.length ? (

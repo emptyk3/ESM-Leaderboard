@@ -15,6 +15,8 @@ const base = {
   participantPoints: "10",
   organizerPoints: "20",
   organizerAliasIds: [],
+  earlyScanEnabled: "false",
+  earlyScanMinutes: "",
 };
 
 describe("event validation", () => {
@@ -60,6 +62,41 @@ describe("event validation", () => {
       );
       expect(result.ok && result.value.organizerPoints).toBeNull();
     }
+  });
+  it("validiert eine optionale positive ganze Vorlaufzeit ohne fachliches Maximum", () => {
+    expect(
+      validateEventInput({
+        ...base,
+        earlyScanEnabled: "true",
+        earlyScanMinutes: "10",
+      }),
+    ).toMatchObject({ ok: true, value: { earlyScanMinutes: 10 } });
+    for (const earlyScanMinutes of ["", "0", "-1", "1.5", "x"]) {
+      expect(
+        validateEventInput({
+          ...base,
+          earlyScanEnabled: "true",
+          earlyScanMinutes,
+        }),
+      ).toMatchObject({ ok: false });
+    }
+    expect(
+      validateEventInput({
+        ...base,
+        earlyScanEnabled: "true",
+        earlyScanMinutes: "2147483648",
+      }),
+    ).toMatchObject({
+      ok: false,
+      message: expect.stringContaining("technisch"),
+    });
+    expect(
+      validateEventInput({
+        ...base,
+        earlyScanEnabled: "false",
+        earlyScanMinutes: "10",
+      }),
+    ).toMatchObject({ ok: true, value: { earlyScanMinutes: null } });
   });
   it("checks exact season boundaries", () => {
     const event = validateEventInput(base);

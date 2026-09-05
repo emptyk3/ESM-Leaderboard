@@ -27,6 +27,19 @@ describe("QR- und Scan-Sicherheitsgrenzen", () => {
     expect(publicSelect).not.toContain("participationToken");
   });
 
+  it("hält die Vorlaufkonfiguration aus öffentlichen DTOs fern", () => {
+    const publicService = read("src/server/public-service.ts");
+    expect(publicService).not.toContain("earlyScanMinutes");
+  });
+
+  it("gibt die vorgezogene Zeit in geschützter Ansicht und PNG aus", () => {
+    const page = read("src/app/events/[eventId]/qr/page.tsx");
+    const service = read("src/server/participation-service.ts");
+    expect(page).toContain("QR-Code scanbar ab");
+    expect(service).toContain("QR-Code scanbar ab");
+    expect(service).toContain("margin: 4");
+  });
+
   it("trennt GET-Anzeige und bestätigte Mutation", () => {
     const scanPage = read("src/app/teilnehmen/[token]/page.tsx");
     const action = read("src/app/actions/participation.ts");

@@ -7,6 +7,7 @@ import {
   qrApplicationOrigin,
   qrParticipationUrl,
   safeScanReturnPath,
+  scanStartsAt,
 } from "./participation";
 
 describe("Teilnahmezeitraum", () => {
@@ -35,6 +36,26 @@ describe("Teilnahmezeitraum", () => {
     expect(PARTICIPATION_AFTER_MESSAGE).toBe(
       "Tut uns leid, das Event ist leider vorbei.",
     );
+  });
+
+  it("öffnet mit zehn Minuten Vorlauf exakt am vorgezogenen Scanbeginn", () => {
+    const early = { ...event, earlyScanMinutes: 10 };
+    const starts = scanStartsAt(early);
+    expect(starts.toISOString()).toBe("2026-06-10T15:50:00.000Z");
+    expect(participationWindow(early, new Date(starts.getTime() - 1))).toBe(
+      "BEFORE",
+    );
+    expect(participationWindow(early, starts)).toBe("OPEN");
+    expect(participationWindow(early, early.endsAt)).toBe("AFTER");
+  });
+
+  it("berechnet Vorlauf über Tages-, Monats- und Jahresgrenzen als Serverinstant", () => {
+    expect(
+      scanStartsAt({
+        startsAt: new Date("2027-01-01T00:05:00+01:00"),
+        earlyScanMinutes: 10,
+      }).toISOString(),
+    ).toBe("2026-12-31T22:55:00.000Z");
   });
 
   it("entscheidet an Wiener Sommer- und Winterzeitgrenzen anhand eindeutiger Serverinstants", () => {

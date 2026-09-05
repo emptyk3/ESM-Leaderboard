@@ -9,17 +9,44 @@ export type EventFormInput = {
   participantPoints: string;
   organizerPoints: string;
   organizerAliasIds: string[];
+  earlyScanEnabled: string;
+  earlyScanMinutes: string;
 };
 
 export type ValidEventInput = Omit<
   EventFormInput,
-  "startsAt" | "endsAt" | "participantPoints" | "organizerPoints"
+  | "startsAt"
+  | "endsAt"
+  | "participantPoints"
+  | "organizerPoints"
+  | "earlyScanEnabled"
+  | "earlyScanMinutes"
 > & {
   startsAt: Date;
   endsAt: Date;
   participantPoints: number;
   organizerPoints: number | null;
+  earlyScanMinutes: number | null;
 };
+
+export const MAX_TECHNICAL_EARLY_SCAN_MINUTES = 2_147_483_647;
+
+export function parseEarlyScanMinutes(enabled: string, value: string) {
+  if (enabled !== "true") return null;
+  if (!/^\d+$/.test(value) || value === "0")
+    throw new Error(
+      "Die Vorlaufzeit muss eine positive ganze Minutenzahl sein.",
+    );
+  const minutes = Number(value);
+  if (
+    !Number.isSafeInteger(minutes) ||
+    minutes > MAX_TECHNICAL_EARLY_SCAN_MINUTES
+  )
+    throw new Error(
+      "Die Vorlaufzeit ist technisch zu groß und kann nicht sicher berechnet werden.",
+    );
+  return minutes;
+}
 
 function parsePoints(value: string, label: string, optional = false) {
   if (optional && value.trim() === "") return null;
@@ -81,6 +108,10 @@ export function validateEventInput(
           true,
         ),
         organizerAliasIds,
+        earlyScanMinutes: parseEarlyScanMinutes(
+          input.earlyScanEnabled,
+          input.earlyScanMinutes,
+        ),
       },
     };
   } catch (error) {
