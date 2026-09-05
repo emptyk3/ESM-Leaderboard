@@ -779,7 +779,7 @@ body:has(.qr-presentation) > .site-header {
   margin-top: var(--s4);
 }
 
-@media (max-width: 76rem) {
+@media (max-width: 82rem) {
   .brand span {
     display: none;
   }
@@ -792,7 +792,7 @@ body:has(.qr-presentation) > .site-header {
     padding-inline: var(--s2);
   }
 }
-@media (max-width: 76rem) {
+@media (max-width: 82rem) {
   .nav-disclosure {
     display: block;
     position: relative;
