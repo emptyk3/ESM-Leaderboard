@@ -769,6 +769,10 @@ body:has(.qr-presentation) > .site-header {
 .scan-result p {
   margin: 0;
 }
+.card > .button-link,
+.card > button {
+  margin-top: var(--s4);
+}
 
 @media (max-width: 68rem) {
   .brand span {

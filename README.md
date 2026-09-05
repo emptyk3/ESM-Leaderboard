@@ -1,5 +1,10 @@
 # eSports Mostviertel Leaderboard
 
+Abschlussunterlagen:
+
+- [MVP-Abnahmematrix](docs/MVP-ABNAHME.md)
+- [Betrieb und Wiederherstellung](docs/BETRIEB-UND-WIEDERHERSTELLUNG.md)
+
 Technische Grundlage für das Vereins-Leaderboard mit Next.js, React, TypeScript, Prisma und PostgreSQL. In diesem Schritt existiert bewusst nur eine minimale Startseite; Authentifizierung, Adminbereich und das eigentliche Leaderboard folgen später.
 
 ## Lokal starten
