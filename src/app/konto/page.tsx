@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AliasForm } from "@/components/auth-form";
 import { getRequiredUser } from "@/server/session-cookie";
+import { MainAdminPasswordForm } from "@/components/main-admin-password-form";
 
 export const metadata = { title: "Mein Konto" };
 
@@ -36,6 +37,7 @@ export default async function AccountPage() {
           werden.
         </p>
         <AliasForm currentAlias={user.alias} />
+        {user.isMainAdmin && <MainAdminPasswordForm />}
       </section>
     </main>
   );

@@ -30,9 +30,13 @@ export async function clearSessionCookie(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<SafeUser | null> {
+  return (await getCurrentSession())?.user ?? null;
+}
+
+export async function getCurrentSession() {
   const token = (await cookies()).get(sessionCookieName)?.value;
   if (!token) return null;
-  return (await findSession(token))?.user ?? null;
+  return findSession(token);
 }
 
 export async function getRequiredUser(): Promise<SafeUser | null> {

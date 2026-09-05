@@ -9,6 +9,7 @@ import {
 } from "@/server/auth-service";
 import {
   clearSessionCookie,
+  getCurrentSession,
   getRequiredUser,
   sessionCookieName,
   setSessionCookie,
@@ -16,6 +17,8 @@ import {
 import { cookies } from "next/headers";
 import { safeScanReturnPath } from "@/domain/participation";
 import { requestFingerprint } from "@/server/rate-limit-service";
+import { mayChangeMainAdminPassword } from "@/domain/password-change";
+import { changeOwnMainAdminPassword } from "@/server/main-admin-password-service";
 
 export type FormState = {
   status?: "error" | "success";
@@ -90,4 +93,32 @@ export async function updateAliasAction(
   return result.ok
     ? { status: "success", message: "Dein Alias wurde geändert." }
     : { status: "error", message: result.message };
+}
+
+export async function changeOwnPasswordAction(
+  _state: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const session = await getCurrentSession();
+  if (!session || !mayChangeMainAdminPassword(session.user))
+    return {
+      status: "error",
+      message: "Diese Aktion ist nicht verfügbar. Bitte melde dich erneut an.",
+    };
+  const result = await changeOwnMainAdminPassword({
+    userId: session.user.id,
+    sessionId: session.sessionId,
+    fingerprint: await requestFingerprint(),
+    currentPassword: field(formData, "currentPassword"),
+    newPassword: field(formData, "newPassword"),
+    newPasswordConfirmation: field(formData, "newPasswordConfirmation"),
+  });
+  if (!result.ok)
+    return {
+      status: "error",
+      message: result.message,
+      fieldErrors: result.fieldErrors,
+    };
+  await clearSessionCookie();
+  redirect("/anmelden?passwort=geaendert");
 }

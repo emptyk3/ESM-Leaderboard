@@ -554,6 +554,11 @@ button:disabled {
   grid-template-columns: minmax(8rem, 1fr) 2fr;
   gap: var(--s4);
 }
+.account-security {
+  margin-top: var(--s5);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--border);
+}
 
 .admin-panel,
 .event-card,
